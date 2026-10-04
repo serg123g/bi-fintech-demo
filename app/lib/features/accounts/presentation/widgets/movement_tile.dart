@@ -5,9 +5,10 @@ import '../../../../design_system/app_theme.dart';
 import '../../domain/entities/movement.dart';
 
 class MovementTile extends StatelessWidget {
-  const MovementTile({required this.movement, super.key});
+  const MovementTile({required this.movement, this.onTap, super.key});
 
   final Movement movement;
+  final VoidCallback? onTap;
 
   static const _icons = {
     MovementCategory.ingreso: Icons.south_west,
@@ -30,6 +31,7 @@ class MovementTile extends StatelessWidget {
     final amount = Formatters.money(movement.amountCents);
     return ListTile(
       key: Key('movement_${movement.id}'),
+      onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: theme.colorScheme.surfaceContainerHighest,
         child: Icon(_icons[movement.category], size: 20),

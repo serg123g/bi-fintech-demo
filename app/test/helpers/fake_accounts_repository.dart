@@ -76,4 +76,16 @@ class FakeAccountsRepository implements AccountsRepository {
   @override
   Stream<DataResult<List<Movement>>> watchMovements(String accountId) =>
       _play(_next(_movements, movementsCalls++));
+
+  @override
+  Stream<DataResult<Movement>> watchMovement(String movementId) async* {
+    final m = testMovements.where((x) => x.id == movementId);
+    if (m.isEmpty) {
+      throw const ServerFailure(
+        message: 'No encontramos este movimiento.',
+        retryable: false,
+      );
+    }
+    yield DataResult(m.first, DataSource.network, seedUpdatedAt);
+  }
 }

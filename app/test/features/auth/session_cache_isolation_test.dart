@@ -29,6 +29,10 @@ class _Remote implements AccountsRemoteDataSource {
   @override
   Future<List<Movement>> fetchMovements(String accountId, {int limit = 50}) =>
       throw UnimplementedError();
+
+  @override
+  Future<Movement> fetchMovement(String movementId) =>
+      throw UnimplementedError();
 }
 
 const _ana = AppUser(

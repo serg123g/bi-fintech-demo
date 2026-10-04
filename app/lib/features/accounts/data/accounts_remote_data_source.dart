@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/errors/failures.dart';
 import '../../../core/network/resilient_executor.dart';
 import '../domain/entities/account.dart';
 import '../domain/entities/movement.dart';
@@ -8,6 +9,7 @@ import 'accounts_mapper.dart';
 abstract interface class AccountsRemoteDataSource {
   Future<List<Account>> fetchAccounts();
   Future<List<Movement>> fetchMovements(String accountId, {int limit = 50});
+  Future<Movement> fetchMovement(String movementId);
 }
 
 /// Lecturas directas a PostgREST: RLS garantiza que solo vuelven las filas
@@ -39,5 +41,23 @@ class SupabaseAccountsRemoteDataSource implements AccountsRemoteDataSource {
             .order('created_at', ascending: false)
             .limit(limit);
         return rows.map(AccountsMapper.movementFromRow).toList();
+      });
+
+  @override
+  Future<Movement> fetchMovement(String movementId) =>
+      _executor.run(service, (_) async {
+        // RLS: si el movimiento no es del usuario, simplemente no existe.
+        final row = await _client
+            .from('movements')
+            .select('id, account_id, amount, description, category, created_at')
+            .eq('id', movementId)
+            .maybeSingle();
+        if (row == null) {
+          throw const ServerFailure(
+            message: 'No encontramos este movimiento.',
+            retryable: false,
+          );
+        }
+        return AccountsMapper.movementFromRow(row);
       });
 }

@@ -11,6 +11,10 @@ abstract final class AppRoutes {
 
   static String account(String id) => '$accounts/$id';
 
+  /// Destino del deep link de notificaciones push.
+  static String movement(String accountId, String movementId) =>
+      '$accounts/$accountId/movements/$movementId';
+
   /// Rutas accesibles sin sesión.
   static const public = {login, onboarding};
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/presentation/resource_state.dart';
 import '../../../../core/presentation/swr_bloc.dart';
+import '../../../../core/router/app_routes.dart';
 import '../../../../design_system/app_theme.dart';
 import '../../../../design_system/widgets/resource_view.dart';
 import '../../domain/entities/account.dart';
@@ -64,7 +66,12 @@ class AccountDetailPage extends StatelessWidget {
                     padding: EdgeInsets.all(AppSpacing.lg),
                     child: Text('Sin movimientos todavía.'),
                   ),
-                for (final m in movements) MovementTile(movement: m),
+                for (final m in movements)
+                  MovementTile(
+                    movement: m,
+                    onTap: () =>
+                        context.push(AppRoutes.movement(m.accountId, m.id)),
+                  ),
               ],
             ),
           ),

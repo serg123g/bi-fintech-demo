@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../core/cache/cache_store.dart';
 import '../../../core/cache/data_result.dart';
 import '../../../core/cache/stale_while_revalidate.dart';
@@ -45,6 +47,19 @@ class AccountsRepositoryImpl implements AccountsRepository {
         fetch: () => _remote.fetchMovements(accountId),
         decode: AccountsMapper.decodeMovements,
         encode: AccountsMapper.encodeMovements,
+        clock: _clock,
+      );
+
+  @override
+  Stream<DataResult<Movement>> watchMovement(String movementId) =>
+      staleWhileRevalidate(
+        cache: _cache,
+        key: 'movement:${_userId()}:$movementId',
+        fetch: () => _remote.fetchMovement(movementId),
+        decode: (s) => AccountsMapper.movementFromRow(
+          jsonDecode(s) as Map<String, dynamic>,
+        ),
+        encode: (m) => jsonEncode(AccountsMapper.movementToJson(m)),
         clock: _clock,
       );
 }

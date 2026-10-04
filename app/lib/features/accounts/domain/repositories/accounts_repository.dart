@@ -9,4 +9,7 @@ abstract interface class AccountsRepository {
   Stream<DataResult<List<Account>>> watchAccounts();
 
   Stream<DataResult<List<Movement>>> watchMovements(String accountId);
+
+  /// Un movimiento puntual (destino del deep link de las notificaciones).
+  Stream<DataResult<Movement>> watchMovement(String movementId);
 }
