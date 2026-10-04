@@ -43,6 +43,36 @@ flutter pub get
 ../scripts/run.sh
 ```
 
+## Backend (Supabase)
+
+Proyecto: `olpbrryqkogxxxkuyhbo`. Esquema versionado en `supabase/migrations/`:
+
+| Migración | Contenido |
+|-----------|-----------|
+| `…140000_core_banking_schema` | `profiles`, `accounts`, `movements`; trigger que mantiene `balance` = Σ movimientos; trigger de alta que crea perfil + cuenta al registrarse |
+| `…141000_feature_flags_and_device_tokens` | `feature_flags`, `device_tokens` y RPCs `register_device_token` / `unregister_device_token` |
+| `…142000_row_level_security` | RLS en todas las tablas, políticas owner-only, grants mínimos (el cliente nunca escribe saldos ni movimientos) |
+| `…143000_customer_snapshot` | RPC `customer_snapshot()` con señales de personalización (saldo, movimientos y transferencias a 30 días) |
+
+```bash
+# Solo la primera vez (si no existe supabase/config.toml; responder N a las preguntas)
+supabase init
+supabase link --project-ref olpbrryqkogxxxkuyhbo   # pide la contraseña de la BD
+supabase db push --include-seed                    # migraciones + seed.sql
+```
+
+Verificación de RLS: ejecutar `supabase/tests/rls_check.sql` en el SQL Editor de Supabase (o con `psql`). Corre dentro de una transacción con `ROLLBACK` e imprime `RLS CHECK OK`.
+
+### Usuarios de prueba
+
+Creados en Supabase Auth (no por SQL); `seed.sql` les asigna perfil, cuentas y movimientos.
+
+| Email | Segmento | Escenario |
+|-------|----------|-----------|
+| `joven@test.com` | joven | Saldo bajo (60.81 USD) → banner "fondo de emergencia" |
+| `pyme@test.com` | pyme | 2 cuentas, muchas transferencias → acceso rápido a transferir + cobros |
+| `premium@test.com` | premium | Saldo alto → oferta de inversión |
+
 ## Calidad
 
 ```bash
