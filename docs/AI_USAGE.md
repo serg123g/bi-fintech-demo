@@ -5,6 +5,7 @@ Registro por fase de cómo se usó IA (Claude, modo agente) durante el desarroll
 | Fase | Generado con IA | Corregido / decidido por mí | Ahorro estimado |
 |------|-----------------|-----------------------------|-----------------|
 | 1 — Setup | Estructura de carpetas, `analysis_options.yaml` estricto, composition root con get_it, router, tema, logger estructurado, workflow de CI, README inicial, script de ejecución. | Revisión de versiones de dependencias y del lint set (se quitó `require_trailing_commas` por ruido); generación de carpetas de plataforma con `flutter create .` en local. | ~40 min |
+| 2 — Backend Supabase | Migraciones (esquema, triggers de saldo y alta, RLS, grants, RPCs), `seed.sql` idempotente y script de verificación de RLS. La IA levantó un Postgres 16 local con un stub de `auth` para aplicar migraciones + seed + checks antes de entregarlos. | Decisiones de modelo: saldo derivado de movimientos vía trigger, cliente sin permisos de escritura sobre dinero, usuarios creados en Auth (no por SQL), publishable key en lugar de anon key. `supabase link` / `db push` ejecutados por mí. | ~1 h |
 
 ## Flujo de trabajo con IA
 
