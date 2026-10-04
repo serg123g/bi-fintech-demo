@@ -14,6 +14,7 @@ class FintechApp extends StatefulWidget {
     super.key,
     this.connectivity,
     this.router,
+    this.scaffoldMessengerKey,
   });
 
   final AuthBloc authBloc;
@@ -21,8 +22,11 @@ class FintechApp extends StatefulWidget {
   /// Si es null no se muestra el banner offline (tests).
   final ConnectivityCubit? connectivity;
 
-  /// Inyectable para tests/E2E.
+  /// Inyectable para tests/E2E y para navegar desde push.
   final GoRouter? router;
+
+  /// Para mostrar notificaciones en primer plano fuera del árbol de widgets.
+  final GlobalKey<ScaffoldMessengerState>? scaffoldMessengerKey;
 
   @override
   State<FintechApp> createState() => _FintechAppState();
@@ -48,6 +52,7 @@ class _FintechAppState extends State<FintechApp> {
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         routerConfig: _router,
+        scaffoldMessengerKey: widget.scaffoldMessengerKey,
         builder: (context, child) {
           final page = child ?? const SizedBox.shrink();
           final connectivity = widget.connectivity;

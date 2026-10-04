@@ -20,6 +20,8 @@ key.properties
 **/google-services.json
 **/GoogleService-Info.plist
 **/firebase_options.dart
+# Generado por `flutterfire configure` (ids de proyecto/app por ambiente)
+app/firebase.json
 supabase/.env
 supabase/.env.*
 supabase/functions/.env
