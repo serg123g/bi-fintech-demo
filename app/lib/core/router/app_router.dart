@@ -1,28 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/onboarding_page.dart';
+import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/home/presentation/home_page.dart';
+import 'app_routes.dart';
+import 'auth_redirect.dart';
+import 'stream_listenable.dart';
 
-/// Rutas centralizadas. Las acciones SDUI de tipo `route` navegan a estos
-/// paths, por eso son parte del contrato con el backend.
-abstract final class AppRoutes {
-  static const home = '/';
-  static const login = '/login';
-  static const onboarding = '/onboarding';
-  static const accounts = '/accounts';
-  static const marketplace = '/marketplace';
-  static const debug = '/debug';
-}
+export 'app_routes.dart';
 
 GoRouter buildRouter({
+  required AuthBloc authBloc,
   String initialLocation = AppRoutes.home,
   GlobalKey<NavigatorState>? navigatorKey,
 }) {
   return GoRouter(
     navigatorKey: navigatorKey,
     initialLocation: initialLocation,
-    // El redirect por estado de auth se añade en la Fase 3.
+    refreshListenable: StreamListenable(authBloc.stream),
+    redirect: (context, state) => authRedirect(authBloc.state, state.uri),
     routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingPage(),
+      ),
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const HomePage(),
