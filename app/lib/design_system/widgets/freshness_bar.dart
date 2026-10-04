@@ -10,6 +10,7 @@ class FreshnessBar extends StatelessWidget {
     required this.updatedAt,
     required this.fromCache,
     required this.isRefreshing,
+    this.isOffline = false,
     this.failure,
     this.onRetry,
     super.key,
@@ -18,6 +19,10 @@ class FreshnessBar extends StatelessWidget {
   final DateTime? updatedAt;
   final bool fromCache;
   final bool isRefreshing;
+
+  /// Sin conexión: lo que se ve son datos guardados aunque se hayan
+  /// obtenido de la red hace un momento.
+  final bool isOffline;
   final AppFailure? failure;
   final VoidCallback? onRetry;
 
@@ -28,6 +33,11 @@ class FreshnessBar extends StatelessWidget {
     final ago = updated == null ? '' : Formatters.timeAgo(updated);
 
     final (IconData icon, String text, Color color) = switch (this) {
+      FreshnessBar(isOffline: true) => (
+        Icons.cloud_off,
+        'Datos guardados · $ago',
+        AppColors.warning,
+      ),
       FreshnessBar(isRefreshing: true) => (
         Icons.sync,
         'Actualizando… (datos de $ago)',
@@ -39,9 +49,9 @@ class FreshnessBar extends StatelessWidget {
         theme.colorScheme.error,
       ),
       FreshnessBar(fromCache: true) => (
-        Icons.history,
-        'Datos guardados, actualizados $ago',
-        theme.colorScheme.tertiary,
+        Icons.cloud_off,
+        'Datos guardados · $ago',
+        AppColors.warning,
       ),
       _ => (
         Icons.check_circle_outline,

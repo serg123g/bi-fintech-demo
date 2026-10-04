@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'connectivity_cubit.dart';
+import 'offline_scope.dart';
 
 /// Banner global (se monta en `MaterialApp.builder`) visible sin conexión.
 class OfflineBanner extends StatelessWidget {
@@ -15,7 +16,9 @@ class OfflineBanner extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Expanded(child: child),
+        Expanded(
+          child: OfflineScope(isOffline: !online, child: child),
+        ),
         if (!online)
           Material(
             key: const Key('offline_banner'),
