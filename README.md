@@ -34,6 +34,7 @@ cp .env.example .env        # completar SUPABASE_URL, SUPABASE_ANON_KEY, ...
 # 2. Carpetas de plataforma (solo la primera vez tras clonar)
 cd app
 flutter create . --org ec.fintech --project-name fintech_platform --platforms android,ios
+rm -f test/widget_test.dart   # el template de flutter create referencia MyApp
 
 # 3. Dependencias
 flutter pub get
