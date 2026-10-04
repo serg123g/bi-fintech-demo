@@ -50,7 +50,8 @@ void main() {
       ..registerSingleton<SduiActionHandler>(
         const SduiActionHandler(logger: ConsoleLogger()),
       )
-      ..registerSingleton<AppLogger>(const ConsoleLogger());
+      ..registerSingleton<AppLogger>(const ConsoleLogger())
+      ..registerSingleton<EnvConfig>(_noBackend);
     addTearDown(sl.reset);
     final bloc = AuthBloc(repo)..add(const AuthStarted());
     addTearDown(bloc.close);

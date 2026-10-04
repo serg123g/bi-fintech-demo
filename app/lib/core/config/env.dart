@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Configuración inyectada en compilación vía `--dart-define-from-file=../.env`.
 ///
 /// Ningún secreto vive en el código: solo la publishable key de Supabase
@@ -23,6 +25,9 @@ class EnvConfig {
   final bool enableChaosPanel;
 
   /// `true` cuando hay backend configurado. Permite correr tests y CI sin keys.
+  /// Panel chaos: siempre en debug; en release solo si se habilita.
+  bool get chaosPanelAvailable => kDebugMode || enableChaosPanel;
+
   bool get hasBackend =>
       supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }

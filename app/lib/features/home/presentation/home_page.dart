@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/logging/app_logger.dart';
 import '../../../core/presentation/resource_state.dart';
 import '../../../core/presentation/swr_bloc.dart';
+import '../../../core/router/app_routes.dart';
 import '../../../design_system/widgets/resource_view.dart';
 import '../../../sdui/sdui_action_handler.dart';
 import '../../../sdui/sdui_models.dart';
@@ -24,6 +26,7 @@ class HomePage extends StatelessWidget {
     required this.actions,
     this.registry,
     this.logger,
+    this.showDebugEntry = false,
     super.key,
   });
 
@@ -32,6 +35,9 @@ class HomePage extends StatelessWidget {
   final SduiActionHandler actions;
   final SduiRegistry? registry;
   final AppLogger? logger;
+
+  /// Muestra el acceso al panel chaos (debug / ENABLE_CHAOS_PANEL).
+  final bool showDebugEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +51,13 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Inicio'),
           actions: [
+            if (showDebugEntry)
+              IconButton(
+                key: const Key('chaos_entry'),
+                tooltip: 'Panel chaos',
+                icon: const Icon(Icons.bug_report_outlined),
+                onPressed: () => context.push(AppRoutes.debug),
+              ),
             IconButton(
               key: const Key('logout_button'),
               tooltip: 'Cerrar sesión',

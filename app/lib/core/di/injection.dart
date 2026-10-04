@@ -15,6 +15,8 @@ import '../../features/home/domain/home_layout_repository.dart';
 import '../../sdui/sdui_action_handler.dart';
 import '../cache/cache_store.dart';
 import '../cache/hive_cache_store.dart';
+import '../chaos/chaos_config.dart';
+import '../chaos/chaos_executor.dart';
 import '../config/env.dart';
 import '../connectivity/connectivity_service.dart';
 import '../logging/app_logger.dart';
@@ -38,8 +40,22 @@ Future<void> configureDependencies({
   sl
     ..registerSingleton<EnvConfig>(config)
     ..registerSingleton<AppLogger>(const ConsoleLogger())
-    ..registerLazySingleton<ResilientExecutor>(
+    ..registerSingleton<ChaosController>(
+      ChaosController(),
+      dispose: (c) => c.close(),
+    )
+    ..registerLazySingleton<DefaultResilientExecutor>(
       () => DefaultResilientExecutor(logger: sl<AppLogger>()),
+    )
+    // Con el panel chaos disponible, el executor real se decora para poder
+    // inyectar latencia/fallas sin tocar repositorios.
+    ..registerLazySingleton<ResilientExecutor>(
+      () => config.chaosPanelAvailable
+          ? ChaosResilientExecutor(
+              inner: sl<DefaultResilientExecutor>(),
+              controller: sl<ChaosController>(),
+            )
+          : sl<DefaultResilientExecutor>(),
     )
     ..registerLazySingleton<SduiActionHandler>(
       () => SduiActionHandler(logger: sl<AppLogger>()),

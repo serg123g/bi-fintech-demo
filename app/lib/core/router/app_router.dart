@@ -9,11 +9,16 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/debug/presentation/chaos_page.dart';
 import '../../features/home/domain/home_layout_repository.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../sdui/sdui_action_handler.dart';
+import '../cache/cache_store.dart';
+import '../chaos/chaos_config.dart';
+import '../config/env.dart';
 import '../di/injection.dart';
 import '../logging/app_logger.dart';
+import '../network/resilient_executor.dart';
 import 'app_routes.dart';
 import 'auth_redirect.dart';
 import 'stream_listenable.dart';
@@ -50,6 +55,17 @@ GoRouter buildRouter({
           accountsRepository: sl<AccountsRepository>(),
           actions: sl<SduiActionHandler>(),
           logger: sl<AppLogger>(),
+          showDebugEntry: sl<EnvConfig>().chaosPanelAvailable,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.debug,
+        redirect: (context, state) =>
+            sl<EnvConfig>().chaosPanelAvailable ? null : AppRoutes.home,
+        builder: (context, state) => ChaosPage(
+          controller: sl<ChaosController>(),
+          cache: sl<CacheStore>(),
+          executor: sl<DefaultResilientExecutor>(),
         ),
       ),
       GoRoute(
