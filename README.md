@@ -31,16 +31,14 @@ scripts/        # utilidades de desarrollo
 # 1. Variables de entorno
 cp .env.example .env        # completar SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ...
 
-# 2. Carpetas de plataforma (solo la primera vez tras clonar)
-cd app
-flutter create . --org ec.fintech --project-name fintech_platform --platforms android,ios
-rm -f test/widget_test.dart   # el template de flutter create referencia MyApp
+# 2. Configuración de Firebase (no versionada, ver ADR-0011)
+cd app && flutterfire configure --project=bi-fintech-demo --platforms=android && cd ..
 
 # 3. Dependencias
-flutter pub get
+cd app && flutter pub get && cd ..
 
-# 4. Ejecutar (inyecta .env como --dart-define)
-../scripts/run.sh
+# 4. Ejecutar desde la raíz del repo (inyecta .env como --dart-define)
+./scripts/run.sh
 ```
 
 ## Backend (Supabase)
@@ -134,6 +132,38 @@ Disponible en debug o con `ENABLE_CHAOS_PANEL=true` (ícono 🐞 en el home → 
 | Borrar cache local | Para probar el fallback empaquetado |
 
 Escenario de aceptación: preset **3 s + 50 % fallas** → volver al home y hacer pull-to-refresh.
+
+### Notificaciones push (FCM, Android)
+
+```
+INSERT en movements ─▶ trigger (pg_net, asíncrono) ─▶ Edge Function send-push ─▶ FCM HTTP v1 ─▶ dispositivo
+                                                       │ lee tokens del dueño (service role)
+                                                       └ borra tokens UNREGISTERED
+```
+
+Tocar la notificación abre **Detalle del movimiento** (`/accounts/:id/movements/:movementId`) con la app en primer plano (banner con "Ver"), en segundo plano o cerrada. Sin sesión, el deep link se conserva y se abre después del login. Al cerrar sesión se invalida el token del dispositivo.
+
+Configuración (una vez; ningún secreto se versiona):
+
+1. Generar la configuración local de Firebase (no se versiona, ver [ADR-0011](docs/adr/0011-configuracion-firebase-fuera-del-repo.md)):
+   ```bash
+   dart pub global activate flutterfire_cli
+   cd app && flutterfire configure --project=bi-fintech-demo --platforms=android
+   ```
+   Crea `lib/firebase_options.dart`, `android/app/google-services.json` y `firebase.json`. En CI se reconstruyen desde los secrets `FIREBASE_OPTIONS_DART` y `GOOGLE_SERVICES_JSON` (base64).
+2. Firebase → Configuración → Cuentas de servicio → *Generar nueva clave privada* (`sa.json`, fuera del repo).
+3. Secretos de la Edge Function:
+   ```bash
+   supabase secrets set FCM_SERVICE_ACCOUNT="$(cat /ruta/segura/sa.json)" PUSH_WEBHOOK_SECRET=<aleatorio>
+   ```
+4. Vault (SQL Editor), mismo secreto aleatorio:
+   ```sql
+   select vault.create_secret('https://olpbrryqkogxxxkuyhbo.supabase.co', 'project_url');
+   select vault.create_secret('<aleatorio>', 'push_webhook_secret');
+   ```
+5. `supabase db push` y `supabase functions deploy send-push --no-verify-jwt` (la protege el secreto del webhook).
+
+iOS (APNs) queda documentado como pendiente: requiere cuenta de Apple Developer y llave APNs; la app detecta que Firebase no está configurado y funciona sin push.
 
 ## Calidad
 
