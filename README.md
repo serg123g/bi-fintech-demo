@@ -119,6 +119,22 @@ supabase functions deploy home-layout --no-verify-jwt
 cd supabase/functions && deno test home-layout/
 ```
 
+### Panel chaos (demostración de resiliencia)
+
+Disponible en debug o con `ENABLE_CHAOS_PANEL=true` (ícono 🐞 en el home → `/debug`). Se implementa como decorador del `ResilientExecutor` (`lib/core/chaos/`), así que repositorios y UI no saben que existe: las fallas se inyectan dentro de cada intento y los reintentos, el circuit breaker, la cache y el fallback reaccionan igual que en producción.
+
+| Control | Efecto |
+|---------|--------|
+| Latencia 0–5 s | Se suma a cada intento → skeletons y "Actualizando…" |
+| Tasa de fallo 0–100 % | Falla aleatoria por intento → reintentos con backoff |
+| Caer home-layout | Home desde el último layout guardado o el empaquetado |
+| Caer cuentas | Solo la tarjeta de saldo muestra error (fallo parcial) |
+| Caer micro-app | La micro-app muestra error con reintento (Fase 8) |
+| Circuit breakers | Estado por servicio (cerrado / ABIERTO / semi-abierto) |
+| Borrar cache local | Para probar el fallback empaquetado |
+
+Escenario de aceptación: preset **3 s + 50 % fallas** → volver al home y hacer pull-to-refresh.
+
 ## Calidad
 
 ```bash
