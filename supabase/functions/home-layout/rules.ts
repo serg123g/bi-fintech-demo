@@ -1,3 +1,5 @@
+import { money } from "../_shared/money.ts";
+
 /**
  * Reglas de personalización del home (funciones puras, sin I/O).
  * Se testean con `deno test` y son la fuente de verdad del contrato SDUI v1.
@@ -83,14 +85,6 @@ export function greetingFor(hour: number): string {
 
 function firstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] || "";
-}
-
-function money(amount: number, currency: string): string {
-  const v = amount.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  return currency === "USD" ? `$${v}` : `${currency} ${v}`;
 }
 
 export function buildHomeLayout(

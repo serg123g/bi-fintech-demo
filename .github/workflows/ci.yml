@@ -72,7 +72,7 @@ jobs:
         run: deno lint
 
       - name: Typecheck
-        run: deno check home-layout/index.ts
+        run: deno check home-layout/index.ts send-push/index.ts
 
-      - name: Tests de reglas de personalización
-        run: deno test --allow-env home-layout/
+      - name: Tests (personalización y push)
+        run: deno test --allow-env
