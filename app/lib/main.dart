@@ -9,6 +9,7 @@ import 'core/connectivity/connectivity_service.dart';
 import 'core/di/injection.dart';
 import 'core/logging/app_logger.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/session_cache_cleaner.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,10 +38,9 @@ Future<void> main() async {
 
   final authBloc = sl<AuthBloc>()..add(const AuthStarted());
 
-  // Al cerrar sesión no deben quedar saldos ni movimientos en disco.
-  authBloc.stream.where((s) => s is AuthUnauthenticated).listen((_) {
-    sl<CacheStore>().clear().ignore();
-  });
+  // Al cerrar sesión (o cambiar de usuario) no deben quedar saldos ni
+  // movimientos de otra persona en disco.
+  SessionCacheCleaner(cache: sl<CacheStore>(), authStates: authBloc.stream);
 
   runApp(
     FintechApp(
