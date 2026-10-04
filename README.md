@@ -20,7 +20,7 @@ scripts/        # utilidades de desarrollo
 
 ## Requisitos
 
-- Flutter **stable** ≥ 3.27 (`flutter --version`)
+- Flutter **3.38.9** / Dart 3.10.8 (misma versión fijada en CI)
 - Android Studio / Xcode para emuladores
 - (Fase 2+) [Supabase CLI](https://supabase.com/docs/guides/cli) y una cuenta de Supabase
 - (Fase 7) Proyecto de Firebase con app Android
@@ -29,7 +29,7 @@ scripts/        # utilidades de desarrollo
 
 ```bash
 # 1. Variables de entorno
-cp .env.example .env        # completar SUPABASE_URL, SUPABASE_ANON_KEY, ...
+cp .env.example .env        # completar SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, ...
 
 # 2. Carpetas de plataforma (solo la primera vez tras clonar)
 cd app
