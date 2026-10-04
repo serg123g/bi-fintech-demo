@@ -17,35 +17,39 @@ const _noBackend = EnvConfig(
 );
 
 void main() {
-  Future<void> setUpDi({FakeAuthRepository? repo}) => configureDependencies(
-    env: _noBackend,
-    overrides: (sl) =>
-        sl.registerSingleton<AuthRepository>(repo ?? FakeAuthRepository()),
-  );
-
   test('DI registra configuración, logger y AuthBloc', () async {
-    await setUpDi();
+    await configureDependencies(
+      env: _noBackend,
+      overrides: (sl) =>
+          sl.registerSingleton<AuthRepository>(FakeAuthRepository()),
+    );
+    // Se resetea en la misma zona (real) donde se creó el bloc.
+    addTearDown(sl.reset);
+
     expect(sl.isRegistered<EnvConfig>(), isTrue);
     expect(sl.isRegistered<AppLogger>(), isTrue);
     expect(sl<EnvConfig>().hasBackend, isFalse);
     expect(sl<AuthBloc>(), isA<AuthBloc>());
   });
 
-  testWidgets('sin sesión la app termina en login', (tester) async {
-    await setUpDi();
-    await tester.pumpWidget(
-      FintechApp(authBloc: sl<AuthBloc>()..add(const AuthStarted())),
-    );
+  // Los widget tests NO pasan por GetIt: el bloc se crea dentro de la zona
+  // FakeAsync de testWidgets. Un bloc creado fuera de ella (o un `await
+  // sl.reset()` que cierra blocs de otra zona) deja futures que pump() nunca
+  // drena y el test se cuelga.
+  Future<void> pumpApp(WidgetTester tester, FakeAuthRepository repo) async {
+    final bloc = AuthBloc(repo)..add(const AuthStarted());
+    addTearDown(bloc.close);
+    await tester.pumpWidget(FintechApp(authBloc: bloc));
     await tester.pumpAndSettle();
+  }
+
+  testWidgets('sin sesión la app termina en login', (tester) async {
+    await pumpApp(tester, FakeAuthRepository());
     expect(find.byKey(const Key('login_submit')), findsOneWidget);
   });
 
   testWidgets('con sesión restaurada la app abre el home', (tester) async {
-    await setUpDi(repo: FakeAuthRepository(initialUser: testUser));
-    await tester.pumpWidget(
-      FintechApp(authBloc: sl<AuthBloc>()..add(const AuthStarted())),
-    );
-    await tester.pumpAndSettle();
+    await pumpApp(tester, FakeAuthRepository(initialUser: testUser));
     expect(find.text('Hola, Ana'), findsOneWidget);
   });
 }
