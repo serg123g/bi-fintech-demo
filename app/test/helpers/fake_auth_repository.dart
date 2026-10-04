@@ -15,7 +15,7 @@ const testUser = AppUser(
 /// Repositorio en memoria, determinista. Usado por widget tests y el E2E.
 class FakeAuthRepository implements AuthRepository {
   FakeAuthRepository({AppUser? initialUser, this.password = 'Test1234!'})
-      : _user = initialUser;
+    : _user = initialUser;
 
   final String password;
   final _controller = StreamController<AppUser?>.broadcast();

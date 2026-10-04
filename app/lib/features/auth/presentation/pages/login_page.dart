@@ -31,8 +31,8 @@ class _LoginPageState extends State<LoginPage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     FocusScope.of(context).unfocus();
     context.read<AuthBloc>().add(
-          AuthSignInRequested(email: _email.text, password: _password.text),
-        );
+      AuthSignInRequested(email: _email.text, password: _password.text),
+    );
   }
 
   @override

@@ -26,14 +26,13 @@ extension AppLoggerX on AppLogger {
     Object? error,
     StackTrace? stackTrace,
     Map<String, Object?> context = const {},
-  }) =>
-      log(
-        LogLevel.error,
-        m,
-        context: context,
-        error: error,
-        stackTrace: stackTrace,
-      );
+  }) => log(
+    LogLevel.error,
+    m,
+    context: context,
+    error: error,
+    stackTrace: stackTrace,
+  );
 }
 
 /// Logger estructurado a consola (`dart:developer`), formato `clave=valor`

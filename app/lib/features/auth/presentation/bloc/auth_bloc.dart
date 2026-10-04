@@ -27,12 +27,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onStarted(AuthStarted event, Emitter<AuthState> emit) async {
     await _subscription?.cancel();
     _subscription = _repository.authStateChanges().listen(
-          (user) => add(_AuthUserChanged(user)),
-          onError: (Object _) {},
-        );
+      (user) => add(_AuthUserChanged(user)),
+      onError: (Object _) {},
+    );
     try {
       final user = await _repository.currentUser();
-      emit(user == null ? const AuthUnauthenticated() : AuthAuthenticated(user));
+      emit(
+        user == null ? const AuthUnauthenticated() : AuthAuthenticated(user),
+      );
     } on AppFailure {
       emit(const AuthUnauthenticated());
     }

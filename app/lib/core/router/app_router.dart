@@ -40,8 +40,7 @@ GoRouter buildRouter({
         builder: (context, state) => const HomePage(),
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
-      body: Center(child: Text('Ruta no encontrada: ${state.uri}')),
-    ),
+    errorBuilder: (context, state) =>
+        Scaffold(body: Center(child: Text('Ruta no encontrada: ${state.uri}'))),
   );
 }

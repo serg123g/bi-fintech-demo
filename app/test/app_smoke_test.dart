@@ -18,11 +18,10 @@ const _noBackend = EnvConfig(
 
 void main() {
   Future<void> setUpDi({FakeAuthRepository? repo}) => configureDependencies(
-        env: _noBackend,
-        overrides: (sl) => sl.registerSingleton<AuthRepository>(
-          repo ?? FakeAuthRepository(),
-        ),
-      );
+    env: _noBackend,
+    overrides: (sl) =>
+        sl.registerSingleton<AuthRepository>(repo ?? FakeAuthRepository()),
+  );
 
   test('DI registra configuración, logger y AuthBloc', () async {
     await setUpDi();

@@ -62,13 +62,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     FocusScope.of(context).unfocus();
     context.read<AuthBloc>().add(
-          AuthSignUpRequested(
-            email: _email.text,
-            password: _password.text,
-            fullName: _name.text,
-            segment: segment,
-          ),
-        );
+      AuthSignUpRequested(
+        email: _email.text,
+        password: _password.text,
+        fullName: _name.text,
+        segment: segment,
+      ),
+    );
   }
 
   @override
@@ -127,7 +127,10 @@ class _WelcomeStep extends StatelessWidget {
     const items = [
       (Icons.phone_iphone, 'Abre tu cuenta en minutos, sin ir a una agencia'),
       (Icons.auto_awesome, 'Una experiencia que se adapta a ti'),
-      (Icons.storefront_outlined, 'Beneficios y servicios de aliados en un solo lugar'),
+      (
+        Icons.storefront_outlined,
+        'Beneficios y servicios de aliados en un solo lugar',
+      ),
     ];
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -260,7 +263,9 @@ class _CredentialsStep extends StatelessWidget {
                     enabled: !loading,
                     textCapitalization: TextCapitalization.words,
                     autofillHints: const [AutofillHints.name],
-                    decoration: const InputDecoration(labelText: 'Nombre completo'),
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre completo',
+                    ),
                     validator: AuthValidators.fullName,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -270,7 +275,9 @@ class _CredentialsStep extends StatelessWidget {
                     enabled: !loading,
                     keyboardType: TextInputType.emailAddress,
                     autofillHints: const [AutofillHints.email],
-                    decoration: const InputDecoration(labelText: 'Correo electrónico'),
+                    decoration: const InputDecoration(
+                      labelText: 'Correo electrónico',
+                    ),
                     validator: AuthValidators.email,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -291,9 +298,12 @@ class _CredentialsStep extends StatelessWidget {
                     key: const Key('signup_password_confirm'),
                     enabled: !loading,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Confirma tu contraseña'),
-                    validator: (v) =>
-                        v == password.text ? null : 'Las contraseñas no coinciden',
+                    decoration: const InputDecoration(
+                      labelText: 'Confirma tu contraseña',
+                    ),
+                    validator: (v) => v == password.text
+                        ? null
+                        : 'Las contraseñas no coinciden',
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   FilledButton(

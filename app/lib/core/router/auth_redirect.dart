@@ -25,8 +25,9 @@ String? authRedirect(AuthState state, Uri uri) {
     AuthInitial() => isSplash ? null : withFrom(AppRoutes.splash),
     AuthAuthenticated() =>
       (isPublic || isSplash) ? _safeFrom(from) ?? AppRoutes.home : null,
-    AuthLoading() || AuthUnauthenticated() || AuthError() =>
-      isPublic ? null : withFrom(AppRoutes.login),
+    AuthLoading() ||
+    AuthUnauthenticated() ||
+    AuthError() => isPublic ? null : withFrom(AppRoutes.login),
   };
 }
 

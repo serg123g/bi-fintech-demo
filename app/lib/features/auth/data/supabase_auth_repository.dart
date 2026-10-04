@@ -50,10 +50,7 @@ class SupabaseAuthRepository implements AuthRepository {
       });
 
   @override
-  Future<AppUser> signIn({
-    required String email,
-    required String password,
-  }) =>
+  Future<AppUser> signIn({required String email, required String password}) =>
       _guard('sign_in', () async {
         final res = await _auth
             .signInWithPassword(email: email.trim(), password: password)
@@ -71,31 +68,32 @@ class SupabaseAuthRepository implements AuthRepository {
     required String password,
     required String fullName,
     required CustomerSegment segment,
-  }) =>
-      _guard('sign_up', () async {
-        final res = await _auth.signUp(
+  }) => _guard('sign_up', () async {
+    final res = await _auth
+        .signUp(
           email: email.trim(),
           password: password,
           // El trigger handle_new_user crea profile + cuenta con estos datos.
           data: {'full_name': fullName.trim(), 'segment': segment.name},
-        ).timeout(timeout);
-        final user = res.user;
-        if (user == null) {
-          throw AuthFailure.fromReason(AuthFailureReason.unknown);
-        }
-        if (res.session == null) {
-          // Proyecto con confirmación de email activa.
-          throw AuthFailure.fromReason(AuthFailureReason.emailNotConfirmed);
-        }
-        return _toAppUser(user, forceRefresh: true);
-      });
+        )
+        .timeout(timeout);
+    final user = res.user;
+    if (user == null) {
+      throw AuthFailure.fromReason(AuthFailureReason.unknown);
+    }
+    if (res.session == null) {
+      // Proyecto con confirmación de email activa.
+      throw AuthFailure.fromReason(AuthFailureReason.emailNotConfirmed);
+    }
+    return _toAppUser(user, forceRefresh: true);
+  });
 
   @override
   Future<void> signOut() => _guard('sign_out', () async {
-        _cache = null;
-        // scope local: cierra la sesión en este dispositivo aunque no haya red.
-        await _auth.signOut(scope: SignOutScope.local);
-      });
+    _cache = null;
+    // scope local: cierra la sesión en este dispositivo aunque no haya red.
+    await _auth.signOut(scope: SignOutScope.local);
+  });
 
   Future<AppUser> _toAppUser(User user, {bool forceRefresh = false}) async {
     final cached = _cache;
@@ -164,20 +162,18 @@ AppFailure mapAuthException(AuthException e) {
   final reason = switch (e.code) {
     'invalid_credentials' => AuthFailureReason.invalidCredentials,
     'user_already_exists' ||
-    'email_exists' =>
-      AuthFailureReason.emailAlreadyRegistered,
+    'email_exists' => AuthFailureReason.emailAlreadyRegistered,
     'weak_password' => AuthFailureReason.weakPassword,
     'email_not_confirmed' => AuthFailureReason.emailNotConfirmed,
     'over_request_rate_limit' ||
-    'over_email_send_rate_limit' =>
-      AuthFailureReason.rateLimited,
+    'over_email_send_rate_limit' => AuthFailureReason.rateLimited,
     'session_expired' ||
     'session_not_found' ||
-    'refresh_token_not_found' =>
-      AuthFailureReason.sessionExpired,
-    _ => e.statusCode == '400'
-        ? AuthFailureReason.invalidCredentials
-        : AuthFailureReason.unknown,
+    'refresh_token_not_found' => AuthFailureReason.sessionExpired,
+    _ =>
+      e.statusCode == '400'
+          ? AuthFailureReason.invalidCredentials
+          : AuthFailureReason.unknown,
   };
   return AuthFailure.fromReason(reason);
 }

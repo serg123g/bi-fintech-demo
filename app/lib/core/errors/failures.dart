@@ -15,7 +15,8 @@ sealed class AppFailure extends Equatable implements Exception {
 /// Sin conectividad, timeout o servicio inalcanzable. Reintentable.
 class NetworkFailure extends AppFailure {
   const NetworkFailure([
-    super.message = 'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.',
+    super.message =
+        'No pudimos conectarnos. Revisa tu conexión e inténtalo de nuevo.',
   ]);
 }
 
@@ -39,25 +40,22 @@ enum AuthFailureReason {
 class AuthFailure extends AppFailure {
   const AuthFailure(this.reason, String message) : super(message);
 
-  factory AuthFailure.fromReason(AuthFailureReason reason) => AuthFailure(
-        reason,
-        switch (reason) {
-          AuthFailureReason.invalidCredentials =>
-            'Correo o contraseña incorrectos.',
-          AuthFailureReason.emailAlreadyRegistered =>
-            'Ya existe una cuenta con este correo.',
-          AuthFailureReason.weakPassword =>
-            'La contraseña es muy débil. Usa al menos 8 caracteres.',
-          AuthFailureReason.emailNotConfirmed =>
-            'Confirma tu correo para continuar.',
-          AuthFailureReason.rateLimited =>
-            'Demasiados intentos. Espera un momento e inténtalo de nuevo.',
-          AuthFailureReason.sessionExpired =>
-            'Tu sesión expiró. Inicia sesión nuevamente.',
-          AuthFailureReason.unknown =>
-            'No pudimos completar la operación. Inténtalo de nuevo.',
-        },
-      );
+  factory AuthFailure.fromReason(
+    AuthFailureReason reason,
+  ) => AuthFailure(reason, switch (reason) {
+    AuthFailureReason.invalidCredentials => 'Correo o contraseña incorrectos.',
+    AuthFailureReason.emailAlreadyRegistered =>
+      'Ya existe una cuenta con este correo.',
+    AuthFailureReason.weakPassword =>
+      'La contraseña es muy débil. Usa al menos 8 caracteres.',
+    AuthFailureReason.emailNotConfirmed => 'Confirma tu correo para continuar.',
+    AuthFailureReason.rateLimited =>
+      'Demasiados intentos. Espera un momento e inténtalo de nuevo.',
+    AuthFailureReason.sessionExpired =>
+      'Tu sesión expiró. Inicia sesión nuevamente.',
+    AuthFailureReason.unknown =>
+      'No pudimos completar la operación. Inténtalo de nuevo.',
+  });
 
   final AuthFailureReason reason;
 
@@ -66,7 +64,5 @@ class AuthFailure extends AppFailure {
 }
 
 class UnexpectedFailure extends AppFailure {
-  const UnexpectedFailure([
-    super.message = 'Ocurrió un error inesperado.',
-  ]);
+  const UnexpectedFailure([super.message = 'Ocurrió un error inesperado.']);
 }

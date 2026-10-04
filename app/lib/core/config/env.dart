@@ -11,12 +11,11 @@ class EnvConfig {
   });
 
   factory EnvConfig.fromEnvironment() => const EnvConfig(
-        supabaseUrl: String.fromEnvironment('SUPABASE_URL'),
-        supabasePublishableKey:
-            String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
-        microappUrl: String.fromEnvironment('MICROAPP_URL'),
-        enableChaosPanel: bool.fromEnvironment('ENABLE_CHAOS_PANEL'),
-      );
+    supabaseUrl: String.fromEnvironment('SUPABASE_URL'),
+    supabasePublishableKey: String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
+    microappUrl: String.fromEnvironment('MICROAPP_URL'),
+    enableChaosPanel: bool.fromEnvironment('ENABLE_CHAOS_PANEL'),
+  );
 
   final String supabaseUrl;
   final String supabasePublishableKey;
@@ -24,5 +23,6 @@ class EnvConfig {
   final bool enableChaosPanel;
 
   /// `true` cuando hay backend configurado. Permite correr tests y CI sin keys.
-  bool get hasBackend => supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
+  bool get hasBackend =>
+      supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }
