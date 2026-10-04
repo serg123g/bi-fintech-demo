@@ -20,11 +20,18 @@ class NetworkFailure extends AppFailure {
   ]);
 }
 
-/// Error del servidor (5xx, respuesta inválida). Reintentable con backoff.
+/// Error del servidor. `retryable: true` = transitorio (5xx, sobrecarga);
+/// `false` = el servidor rechazó la petición (validación, permisos).
 class ServerFailure extends AppFailure {
-  const ServerFailure([
-    super.message = 'El servicio no está disponible en este momento.',
-  ]);
+  const ServerFailure({
+    String message = 'El servicio no está disponible en este momento.',
+    this.retryable = true,
+  }) : super(message);
+
+  final bool retryable;
+
+  @override
+  List<Object?> get props => [message, retryable];
 }
 
 enum AuthFailureReason {
@@ -61,6 +68,19 @@ class AuthFailure extends AppFailure {
 
   @override
   List<Object?> get props => [reason, message];
+}
+
+/// El circuit breaker del servicio está abierto: no se intenta la llamada
+/// para no saturar un backend caído. Se reintenta solo tras el cool-down.
+class ServiceUnavailableFailure extends AppFailure {
+  const ServiceUnavailableFailure(this.service, {this.retryAfter})
+    : super('Este servicio no está disponible temporalmente.');
+
+  final String service;
+  final Duration? retryAfter;
+
+  @override
+  List<Object?> get props => [service, message];
 }
 
 class UnexpectedFailure extends AppFailure {
