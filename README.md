@@ -80,6 +80,21 @@ Creados en Supabase Auth (no por SQL); `seed.sql` les asigna perfil, cuentas y m
 - La sesión se guarda cifrada con `flutter_secure_storage` (Keychain / EncryptedSharedPreferences), no en SharedPreferences.
 - Navegación protegida por `authRedirect` (`lib/core/router/auth_redirect.dart`): sin sesión → login; los deep links protegidos se conservan en `?from=`.
 
+### Resiliencia y modo offline
+
+Todas las llamadas remotas pasan por `ResilientExecutor` (`lib/core/network/`):
+
+| Mecanismo | Comportamiento |
+|-----------|----------------|
+| Timeout | 8 s por intento |
+| Reintentos | 3 intentos, backoff exponencial con *full jitter* (300 ms → máx. 3 s). Solo operaciones idempotentes y errores transitorios (red, 5xx) |
+| Circuit breaker | Por servicio: 3 fallos seguidos → abierto 15 s (no se llama al backend) → half-open con una llamada de prueba |
+| Trazabilidad | Un `correlationId` por operación lógica (compartido entre reintentos) en los logs; las Edge Functions lo reciben en el header `x-correlation-id` |
+
+Lecturas con **stale-while-revalidate**: se muestra al instante lo guardado (Hive cifrado con AES, llave en Keychain/Keystore, claves por usuario, se borra al cerrar sesión) con "actualizado hace X", y se refresca en segundo plano. Estados en UI: skeleton → datos (frescos / guardados) → error con **Reintentar**. Banner global sin conexión vía `connectivity_plus`.
+
+Prueba manual: abrir *Mis cuentas* con red → activar modo avión → reabrir: se ven los datos guardados con aviso; al volver la red, *Reintentar* (o pull-to-refresh) actualiza.
+
 ## Calidad
 
 ```bash
