@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- Sin recursos externos: todo inline. Nada de cookies ni tokens. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:;" />
+  <title>Beneficios</title>
+  <style>
+    :root {
+      --bg: #f7f8fc; --card: #ffffff; --text: #1b1d24; --muted: #5d6170;
+      --primary: #0b3d91; --accent: #f28c28; --ok: #1b8a5a; --border: #e2e5ee;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #12141a; --card: #1c1f27; --text: #eef0f6; --muted: #a5aab8;
+              --primary: #8fb4ff; --accent: #ffb26b; --ok: #6ad3a2; --border: #2c303b; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.45 system-ui, -apple-system, Roboto, sans-serif;
+           background: var(--bg); color: var(--text); }
+    header { position: sticky; top: 0; background: var(--bg); padding: 16px 16px 8px;
+             display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    h1 { font-size: 20px; margin: 0; }
+    .sub { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+    button.close { border: 1px solid var(--border); background: var(--card); color: var(--text);
+                   border-radius: 999px; padding: 8px 14px; font-size: 14px; }
+    nav { display: flex; gap: 8px; padding: 4px 16px 12px; overflow-x: auto; }
+    nav button { border: 1px solid var(--border); background: var(--card); color: var(--text);
+                 border-radius: 999px; padding: 6px 12px; font-size: 14px; white-space: nowrap; }
+    nav button[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+    main { padding: 0 16px 24px; display: grid; gap: 12px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+    .card h2 { font-size: 16px; margin: 0 0 4px; }
+    .card p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .tag { display: inline-block; font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+    .card button { width: 100%; border: 0; border-radius: 12px; padding: 12px; font-size: 15px;
+                   background: var(--primary); color: #fff; font-weight: 600; }
+    .card button[disabled] { background: var(--ok); }
+    .demo { margin: 0 16px 12px; padding: 10px 12px; border-radius: 12px; font-size: 13px;
+            background: color-mix(in srgb, var(--accent) 18%, transparent); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1 id="title">Beneficios</h1>
+      <p class="sub" id="subtitle">Cargando…</p>
+    </div>
+    <button class="close" id="close" type="button">Cerrar</button>
+  </header>
+  <p class="demo hidden" id="demo">Modo demo: abierto fuera de la app (sin puente nativo).</p>
+  <nav id="sections" aria-label="Secciones"></nav>
+  <main id="list" aria-live="polite"></main>
+
+  <script>
+    'use strict';
+    // -----------------------------------------------------------------------
+    // Protocolo v1 (ver docs/adr y lib/features/marketplace/domain):
+    //   web -> app : {v:1, type:'ready'|'benefit_selected'|'close', payload}
+    //   app -> web : {v:1, type:'init', payload:{name, segment, section}}
+    // El host nunca envía el token de sesión.
+    // -----------------------------------------------------------------------
+    const PROTOCOL = 1;
+    const CATALOG = {
+      beneficios: [
+        { id: 'food-20', title: '20 % en comida a domicilio', body: 'Lunes a jueves en restaurantes aliados.', tag: 'Comida', segments: ['joven', 'pyme', 'premium'] },
+        { id: 'transport-2x1', title: '2x1 en viajes urbanos', body: 'Hasta 4 viajes al mes con tu tarjeta de débito.', tag: 'Transporte', segments: ['joven'] },
+        { id: 'cinema-50', title: '50 % en cine', body: 'Entradas de martes y miércoles.', tag: 'Entretenimiento', segments: ['joven', 'premium'] },
+        { id: 'lounge', title: 'Acceso a salas VIP', body: 'Dos accesos al año en aeropuertos de la región.', tag: 'Viajes', segments: ['premium'] },
+        { id: 'insurance', title: 'Seguro de viaje sin costo', body: 'Cobertura médica internacional al pagar con tu tarjeta.', tag: 'Viajes', segments: ['premium'] },
+        { id: 'pos-0', title: 'Datáfono sin comisión 3 meses', body: 'Para nuevos comercios afiliados.', tag: 'Negocio', segments: ['pyme'] },
+      ],
+      cobros: [
+        { id: 'link-pago', title: 'Link de pago', body: 'Comparte un enlace y cobra con tarjeta o transferencia.', tag: 'Cobros', segments: ['pyme'] },
+        { id: 'qr-cobro', title: 'QR de cobro', body: 'Muestra tu QR y recibe pagos al instante.', tag: 'Cobros', segments: ['pyme'] },
+      ],
+    };
+    const SECTION_LABELS = { beneficios: 'Beneficios', cobros: 'Cobros' };
+
+    const host = window.HostBridge; // JavaScriptChannel inyectado por Flutter
+    const state = { name: '', segment: 'joven', section: 'beneficios', selected: new Set() };
+
+    function send(type, payload) {
+      const msg = JSON.stringify({ v: PROTOCOL, type, payload: payload || {} });
+      if (host && typeof host.postMessage === 'function') host.postMessage(msg);
+      else console.log('[microapp] ->', msg);
+    }
+
+    function sectionsFor(segment) {
+      return Object.keys(CATALOG).filter((s) =>
+        CATALOG[s].some((b) => b.segments.includes(segment)));
+    }
+
+    function el(tag, props, children) {
+      const n = document.createElement(tag);
+      Object.assign(n, props || {});
+      (children || []).forEach((c) => n.append(c));
+      return n;
+    }
+
+    function render() {
+      document.getElementById('title').textContent = SECTION_LABELS[state.section] || 'Beneficios';
+      document.getElementById('subtitle').textContent = state.name
+        ? `Seleccionados para ti, ${state.name}`
+        : 'Seleccionados para ti';
+
+      const nav = document.getElementById('sections');
+      nav.replaceChildren(...sectionsFor(state.segment).map((s) => {
+        const b = el('button', { type: 'button', textContent: SECTION_LABELS[s] });
+        b.setAttribute('aria-pressed', String(s === state.section));
+        b.addEventListener('click', () => { state.section = s; render(); });
+        return b;
+      }));
+
+      const items = (CATALOG[state.section] || []).filter((b) => b.segments.includes(state.segment));
+      document.getElementById('list').replaceChildren(...items.map((b) => {
+        const done = state.selected.has(b.id);
+        const btn = el('button', { type: 'button', textContent: done ? 'Activado ✓' : 'Activar', disabled: done });
+        btn.addEventListener('click', () => {
+          state.selected.add(b.id);
+          send('benefit_selected', { id: b.id, title: b.title, section: state.section });
+          render();
+        });
+        return el('article', { className: 'card' }, [
+          el('span', { className: 'tag', textContent: b.tag }),
+          el('h2', { textContent: b.title }),
+          el('p', { textContent: b.body }),
+          btn,
+        ]);
+      }));
+    }
+
+    // Mensajes del host (Flutter llama a esta función con runJavaScript).
+    window.__hostReceive = function (raw) {
+      let msg;
+      try { msg = JSON.parse(raw); } catch (_) { return; }
+      if (!msg || msg.v !== PROTOCOL || msg.type !== 'init') return;
+      const p = msg.payload || {};
+      state.name = typeof p.name === 'string' ? p.name.slice(0, 40) : '';
+      state.segment = ['joven', 'pyme', 'premium'].includes(p.segment) ? p.segment : 'joven';
+      const sections = sectionsFor(state.segment);
+      state.section = sections.includes(p.section) ? p.section : sections[0];
+      render();
+    };
+
+    document.getElementById('close').addEventListener('click', () => send('close'));
+
+    if (!host) document.getElementById('demo').classList.remove('hidden');
+    render();
+    send('ready', { protocol: PROTOCOL });
+  </script>
+</body>
+</html>
