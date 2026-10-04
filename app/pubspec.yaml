@@ -26,6 +26,8 @@ dependencies:
   hive_ce_flutter: ^2.3.0
   # Estado de red
   connectivity_plus: ^6.1.0
+  # Acciones SDUI de tipo url
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
