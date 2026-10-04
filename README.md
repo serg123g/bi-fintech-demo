@@ -73,6 +73,13 @@ Creados en Supabase Auth (no por SQL); `seed.sql` les asigna perfil, cuentas y m
 | `pyme@test.com` | pyme | 2 cuentas, muchas transferencias → acceso rápido a transferir + cobros |
 | `premium@test.com` | premium | Saldo alto → oferta de inversión |
 
+### Autenticación
+
+- Email + contraseña con Supabase Auth. En **Authentication → Providers → Email** desactivar *Confirm email* para la demo (si está activo, el registro muestra "Confirma tu correo").
+- El onboarding (3 pasos) envía `full_name` y `segment` en `user_metadata`; el trigger `handle_new_user` crea el perfil y una cuenta de ahorros.
+- La sesión se guarda cifrada con `flutter_secure_storage` (Keychain / EncryptedSharedPreferences), no en SharedPreferences.
+- Navegación protegida por `authRedirect` (`lib/core/router/auth_redirect.dart`): sin sesión → login; los deep links protegidos se conservan en `?from=`.
+
 ## Calidad
 
 ```bash
