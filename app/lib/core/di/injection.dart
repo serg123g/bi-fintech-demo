@@ -32,7 +32,7 @@ Future<void> configureDependencies({
     await Supabase.initialize(
       url: config.supabaseUrl,
       // Publishable key (sb_publishable_...). Nunca la secret key.
-      anonKey: config.supabasePublishableKey,
+      publishableKey: config.supabasePublishableKey,
       authOptions: FlutterAuthClientOptions(
         localStorage: SecureSessionStorage(),
       ),
