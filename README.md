@@ -95,6 +95,30 @@ Lecturas con **stale-while-revalidate**: se muestra al instante lo guardado (Hiv
 
 Prueba manual: abrir *Mis cuentas* con red → activar modo avión → reabrir: se ven los datos guardados con aviso; al volver la red, *Reintentar* (o pull-to-refresh) actualiza.
 
+### Home personalizado (Server-Driven UI)
+
+El home lo arma la Edge Function `supabase/functions/home-layout` a partir de `customer_snapshot()` y `feature_flags`, con reglas puras en `rules.ts` (testeadas con `deno test`):
+
+| Señal | Resultado en el home |
+|-------|---------------------|
+| Hora local (America/Guayaquil) | "Buenos días / Buenas tardes / Buenas noches, {nombre}" |
+| Saldo total < $100 | Banner "Arma tu fondo de emergencia" |
+| ≥ 5 transferencias en 30 días | Acceso rápido "Transferir" primero |
+| Segmento pyme | Acceso rápido "Cobros" |
+| Segmento premium | Tarjeta de oferta de inversión |
+| Gastos del mes | Insight con la categoría de mayor gasto |
+
+Contrato v1: `{version, layout_id, generated_at, ttl_seconds, sections: [{id, type, props}]}`; acciones tipadas `route | url | microapp` validadas contra lista blanca en la app. Tipos de sección desconocidos se ignoran (compatibilidad hacia adelante) y una sección con props inválidas se omite sin afectar al resto.
+
+Degradación: red → último layout guardado → `assets/sdui/home_fallback.json`. Apagar un flag en `feature_flags` cambia el home sin publicar la app.
+
+```bash
+# Deploy (la función valida el token del usuario con auth.getUser)
+supabase functions deploy home-layout --no-verify-jwt
+# Tests de reglas
+cd supabase/functions && deno test home-layout/
+```
+
 ## Calidad
 
 ```bash
