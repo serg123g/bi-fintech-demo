@@ -9,8 +9,11 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
+import '../../features/home/domain/home_layout_repository.dart';
 import '../../features/home/presentation/home_page.dart';
+import '../../sdui/sdui_action_handler.dart';
 import '../di/injection.dart';
+import '../logging/app_logger.dart';
 import 'app_routes.dart';
 import 'auth_redirect.dart';
 import 'stream_listenable.dart';
@@ -42,7 +45,12 @@ GoRouter buildRouter({
       ),
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => HomePage(
+          homeRepository: sl<HomeLayoutRepository>(),
+          accountsRepository: sl<AccountsRepository>(),
+          actions: sl<SduiActionHandler>(),
+          logger: sl<AppLogger>(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.accounts,

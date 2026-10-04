@@ -2,12 +2,17 @@ import 'package:fintech_platform/app.dart';
 import 'package:fintech_platform/core/config/env.dart';
 import 'package:fintech_platform/core/di/injection.dart';
 import 'package:fintech_platform/core/logging/app_logger.dart';
+import 'package:fintech_platform/features/accounts/domain/repositories/accounts_repository.dart';
 import 'package:fintech_platform/features/auth/domain/repositories/auth_repository.dart';
 import 'package:fintech_platform/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:fintech_platform/features/home/domain/home_layout_repository.dart';
+import 'package:fintech_platform/sdui/sdui_action_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'helpers/fake_accounts_repository.dart';
 import 'helpers/fake_auth_repository.dart';
+import 'helpers/fake_home_layout_repository.dart';
 
 const _noBackend = EnvConfig(
   supabaseUrl: '',
@@ -37,6 +42,16 @@ void main() {
   // sl.reset()` que cierra blocs de otra zona) deja futures que pump() nunca
   // drena y el test se cuelga.
   Future<void> pumpApp(WidgetTester tester, FakeAuthRepository repo) async {
+    // El router resuelve las páginas desde GetIt: registros síncronos y sin
+    // disposables, para que el reset no deje futures fuera de la zona.
+    sl
+      ..registerSingleton<HomeLayoutRepository>(FakeHomeLayoutRepository())
+      ..registerSingleton<AccountsRepository>(FakeAccountsRepository())
+      ..registerSingleton<SduiActionHandler>(
+        const SduiActionHandler(logger: ConsoleLogger()),
+      )
+      ..registerSingleton<AppLogger>(const ConsoleLogger());
+    addTearDown(sl.reset);
     final bloc = AuthBloc(repo)..add(const AuthStarted());
     addTearDown(bloc.close);
     await tester.pumpWidget(FintechApp(authBloc: bloc));

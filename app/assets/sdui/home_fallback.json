@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "layout_id": "home-fallback-v1",
+  "sections": [
+    {
+      "id": "greeting",
+      "type": "greeting",
+      "props": { "text": "Hola, {first_name}", "subtitle": "Tu banco, siempre disponible" }
+    },
+    { "id": "accounts", "type": "accounts_summary", "props": {} },
+    {
+      "id": "quick_actions",
+      "type": "quick_actions",
+      "props": {
+        "items": [
+          {
+            "icon": "account_balance_wallet",
+            "label": "Mis cuentas",
+            "action": { "type": "route", "value": "/accounts" }
+          }
+        ]
+      }
+    },
+    {
+      "id": "degraded_notice",
+      "type": "banner",
+      "props": {
+        "style": "info",
+        "icon": "info",
+        "title": "Estamos mostrando una versión básica",
+        "subtitle": "Tus saldos y movimientos siguen disponibles. Las recomendaciones volverán pronto."
+      }
+    }
+  ]
+}

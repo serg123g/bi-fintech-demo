@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show FlutterAuthClientOptions, Supabase, SupabaseClient;
@@ -8,6 +9,10 @@ import '../../features/accounts/domain/repositories/accounts_repository.dart';
 import '../../features/auth/data/supabase_auth_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/home/data/home_layout_remote_data_source.dart';
+import '../../features/home/data/home_layout_repository_impl.dart';
+import '../../features/home/domain/home_layout_repository.dart';
+import '../../sdui/sdui_action_handler.dart';
 import '../cache/cache_store.dart';
 import '../cache/hive_cache_store.dart';
 import '../config/env.dart';
@@ -35,6 +40,9 @@ Future<void> configureDependencies({
     ..registerSingleton<AppLogger>(const ConsoleLogger())
     ..registerLazySingleton<ResilientExecutor>(
       () => DefaultResilientExecutor(logger: sl<AppLogger>()),
+    )
+    ..registerLazySingleton<SduiActionHandler>(
+      () => SduiActionHandler(logger: sl<AppLogger>()),
     );
 
   // --- Backend -------------------------------------------------------------
@@ -60,6 +68,19 @@ Future<void> configureDependencies({
           remote: sl<AccountsRemoteDataSource>(),
           cache: sl<CacheStore>(),
           currentUserId: () => client.auth.currentUser?.id ?? 'anonymous',
+        ),
+      )
+      ..registerLazySingleton<HomeLayoutRemoteDataSource>(
+        () =>
+            SupabaseHomeLayoutRemoteDataSource(client, sl<ResilientExecutor>()),
+      )
+      ..registerLazySingleton<HomeLayoutRepository>(
+        () => HomeLayoutRepositoryImpl(
+          remote: sl<HomeLayoutRemoteDataSource>(),
+          cache: sl<CacheStore>(),
+          currentUserId: () => client.auth.currentUser?.id ?? 'anonymous',
+          loadFallback: () =>
+              rootBundle.loadString('assets/sdui/home_fallback.json'),
         ),
       )
       ..registerLazySingleton<AuthRepository>(
