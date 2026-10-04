@@ -1,34 +1,85 @@
-# Secrets
+# =========================================================
+# SECRETOS — nunca se versionan (ver .env.example)
+# =========================================================
 .env
-*.env.local
+.env.*
+*.env
+!.env.example
+*service-account*.json
+*serviceAccount*.json
+*-adminsdk-*.json
+*credentials*.json
+*secret*.json
+*.pem
+*.p8
+*.p12
+*.key
+*.jks
+*.keystore
+key.properties
 **/google-services.json
 **/GoogleService-Info.plist
+**/firebase_options.dart
 supabase/.env
+supabase/.env.*
+supabase/functions/.env
+supabase/functions/.env.*
 supabase/.temp/
+supabase/.branches/
 
+# =========================================================
 # Flutter / Dart
+# =========================================================
 **/.dart_tool/
 **/.flutter-plugins
 **/.flutter-plugins-dependencies
-**/build/
 **/.packages
+**/.pub-cache/
+**/.pub/
+**/build/
+**/coverage/
 **/pubspec_overrides.yaml
-app/coverage/
+**/doc/api/
+*.symbols
+app.*.map.json
 
-# IDE
-.idea/
-*.iml
-.vscode/
-.DS_Store
-
-# Android / iOS generated
+# Android
 **/android/.gradle/
+**/android/captures/
 **/android/local.properties
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle/wrapper/gradle-wrapper.jar
 **/android/app/debug
 **/android/app/profile
 **/android/app/release
+**/android/**/GeneratedPluginRegistrant.java
+
+# iOS
 **/ios/Pods/
 **/ios/.symlinks/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
 **/ios/Flutter/Generated.xcconfig
-**/ios/Flutter/flutter_export_environment.sh
 **/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/.last_build_id
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/xcuserdata/
+**/*.xcworkspace/xcuserdata/
+
+# =========================================================
+# IDE / SO
+# =========================================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.DS_Store
+*.log
+*.swp
+
+# Bundles de intercambio de commits (no forman parte del repo)
+*.bundle
