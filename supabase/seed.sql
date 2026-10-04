@@ -13,6 +13,9 @@
 -- Los saldos NO se escriben a mano: los calcula el trigger de movements.
 -- =============================================================================
 
+-- No disparar notificaciones push por los movimientos de demo.
+select set_config('app.skip_push', 'on', false);
+
 do $$
 declare
   v_joven   uuid;
