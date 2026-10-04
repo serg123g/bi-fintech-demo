@@ -1,0 +1,34 @@
+# Secrets
+.env
+*.env.local
+**/google-services.json
+**/GoogleService-Info.plist
+supabase/.env
+supabase/.temp/
+
+# Flutter / Dart
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/build/
+**/.packages
+**/pubspec_overrides.yaml
+app/coverage/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Android / iOS generated
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/ephemeral/
