@@ -10,7 +10,7 @@ void main() {
     await configureDependencies(
       env: const EnvConfig(
         supabaseUrl: '',
-        supabaseAnonKey: '',
+        supabasePublishableKey: '',
         microappUrl: '',
         enableChaosPanel: false,
       ),
