@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../core/router/app_routes.dart';
 
 import '../../auth/presentation/bloc/auth_bloc.dart';
 
@@ -34,6 +37,13 @@ class HomePage extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             if (user != null) Text('Segmento: ${user.segment.label}'),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              key: const Key('home_accounts_button'),
+              onPressed: () => context.push(AppRoutes.accounts),
+              icon: const Icon(Icons.account_balance_wallet_outlined),
+              label: const Text('Mis cuentas'),
+            ),
           ],
         ),
       ),

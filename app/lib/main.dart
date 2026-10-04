@@ -2,7 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'core/cache/cache_store.dart';
 import 'core/config/env.dart';
+import 'core/connectivity/connectivity_cubit.dart';
+import 'core/connectivity/connectivity_service.dart';
 import 'core/di/injection.dart';
 import 'core/logging/app_logger.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
@@ -32,7 +35,19 @@ Future<void> main() async {
     return;
   }
 
-  runApp(FintechApp(authBloc: sl<AuthBloc>()..add(const AuthStarted())));
+  final authBloc = sl<AuthBloc>()..add(const AuthStarted());
+
+  // Al cerrar sesión no deben quedar saldos ni movimientos en disco.
+  authBloc.stream.where((s) => s is AuthUnauthenticated).listen((_) {
+    sl<CacheStore>().clear().ignore();
+  });
+
+  runApp(
+    FintechApp(
+      authBloc: authBloc,
+      connectivity: ConnectivityCubit(sl<ConnectivityService>()),
+    ),
+  );
 }
 
 /// Falla temprana y explícita si se ejecuta sin `--dart-define-from-file`.

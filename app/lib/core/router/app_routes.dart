@@ -9,6 +9,8 @@ abstract final class AppRoutes {
   static const marketplace = '/marketplace';
   static const debug = '/debug';
 
+  static String account(String id) => '$accounts/$id';
+
   /// Rutas accesibles sin sesión.
   static const public = {login, onboarding};
 }
