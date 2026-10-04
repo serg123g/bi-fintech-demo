@@ -12,6 +12,8 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/home/data/home_layout_remote_data_source.dart';
 import '../../features/home/data/home_layout_repository_impl.dart';
 import '../../features/home/domain/home_layout_repository.dart';
+import '../../features/notifications/data/supabase_device_token_repository.dart';
+import '../../features/notifications/domain/push_messaging_client.dart';
 import '../../sdui/sdui_action_handler.dart';
 import '../cache/cache_store.dart';
 import '../cache/hive_cache_store.dart';
@@ -98,6 +100,9 @@ Future<void> configureDependencies({
           loadFallback: () =>
               rootBundle.loadString('assets/sdui/home_fallback.json'),
         ),
+      )
+      ..registerLazySingleton<DeviceTokenRepository>(
+        () => SupabaseDeviceTokenRepository(client, sl<ResilientExecutor>()),
       )
       ..registerLazySingleton<AuthRepository>(
         () => SupabaseAuthRepository(sl<SupabaseClient>(), sl<AppLogger>()),
