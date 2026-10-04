@@ -75,6 +75,14 @@ class DefaultResilientExecutor implements ResilientExecutor {
   CircuitBreaker breakerFor(String service) =>
       _breakers.putIfAbsent(service, _breakerFactory);
 
+  /// Estado de cada breaker (para el panel de diagnóstico).
+  Map<String, CircuitState> get circuitStates => {
+    for (final e in _breakers.entries) e.key: e.value.state,
+  };
+
+  /// Cierra todos los breakers (panel de diagnóstico).
+  void resetCircuits() => _breakers.clear();
+
   @override
   Future<T> run<T>(
     String service,
