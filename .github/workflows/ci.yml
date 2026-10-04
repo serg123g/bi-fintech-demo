@@ -31,11 +31,25 @@ jobs:
       - name: Versión de Flutter
         run: flutter --version
 
+      # firebase_options.dart y google-services.json no se versionan
+      # (ADR-0011): se reconstruyen desde secrets en base64.
+      - name: Config de Firebase desde secrets
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$FIREBASE_OPTIONS_DART" ] || [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::error::Faltan los secrets FIREBASE_OPTIONS_DART / GOOGLE_SERVICES_JSON"
+            exit 1
+          fi
+          echo "$FIREBASE_OPTIONS_DART" | base64 --decode > lib/firebase_options.dart
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+
       - name: Dependencias
         run: flutter pub get
 
-      - name: Formato
-        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Formato (solo archivos versionados)
+        run: dart format --output=none --set-exit-if-changed $(git ls-files '*.dart')
 
       - name: Análisis estático
         run: flutter analyze --fatal-infos
