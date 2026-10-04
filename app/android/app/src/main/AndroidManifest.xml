@@ -2,6 +2,8 @@
     <!-- Requerido en release para Supabase (debug/profile ya lo declaran) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Android 13+: permiso en runtime para notificaciones push -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:label="BI Fintech"
         android:name="${applicationName}"
