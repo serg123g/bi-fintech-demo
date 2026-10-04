@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Requerido en release para Supabase (debug/profile ya lo declaran) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
-        android:label="fintech_platform"
+        android:label="BI Fintech"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
