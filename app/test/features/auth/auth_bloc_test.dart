@@ -19,6 +19,8 @@ void main() {
 
   final invalid = AuthFailure.fromReason(AuthFailureReason.invalidCredentials);
 
+  setUpAll(() => registerFallbackValue(CustomerSegment.joven));
+
   setUp(() {
     repo = _MockAuthRepository();
     changes = StreamController<AppUser?>.broadcast();
