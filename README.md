@@ -2,7 +2,7 @@
 
 App Flutter para una plataforma financiera 100 % digital: onboarding, cuentas y movimientos, home personalizado vía **Server-Driven UI**, micro-app externa, notificaciones push y resiliencia ante red degradada. Backend real en **Supabase** (Auth, Postgres + RLS, Edge Functions como BFF).
 
-> Estado: 🚧 en construcción por fases (ver historial de commits sobre `main`).
+> Estado: alcance mínimo completo (fases 1–10). Historial de desarrollo en `main` con Trunk Based Development.
 
 ## Estructura
 
@@ -208,7 +208,7 @@ Los E2E usan el composition root real (`configureDependencies`) y solo reemplaza
 
 ## Documentación
 
-- `docs/ARCHITECTURE.md` — diagramas C4 y de secuencia, supuestos, riesgos, escalamiento
-- `docs/adr/` — decisiones de arquitectura
-- `docs/OPERATIONS.md` — despliegue y monitoreo
-- `docs/AI_USAGE.md` — uso de IA por fase
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): C4 (contexto, contenedores, componentes), secuencias de login, SDUI con fallback y push con deep link, supuestos, riesgos y estrategia de escalamiento.
+- [`docs/adr/`](docs/adr/README.md): 11 decisiones de arquitectura (problema, alternativas, opción, trade-offs, impacto).
+- [`docs/OPERATIONS.md`](docs/OPERATIONS.md): pipeline y despliegue por pieza, ambientes, rollout gradual, monitoreo (herramientas, correlation IDs, métricas de UX, SLOs y alertas), comportamiento degradado y runbook.
+- [`docs/AI_USAGE.md`](docs/AI_USAGE.md): uso de IA por fase y resumen de impacto en productividad, calidad, documentación y pruebas.
