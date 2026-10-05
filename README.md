@@ -165,6 +165,22 @@ Configuración (una vez; ningún secreto se versiona):
 
 iOS (APNs) queda documentado como pendiente: requiere cuenta de Apple Developer y llave APNs; la app detecta que Firebase no está configurado y funciona sin push.
 
+### Micro-app externa (marketplace de beneficios)
+
+`microapp/index.html` es una micro-app web independiente (otro "equipo" podría desplegarla sin publicar la app), servida por GitHub Pages (`.github/workflows/pages.yml`) en `https://serg123g.github.io/bi-fintech-demo/`. Se abre desde el home vía acciones SDUI `microapp` (`marketplace`, y `collections` → sección *Cobros* para pyme).
+
+```
+App (WebView)                         Micro-app (JS)
+     │ ◀──────── {v:1, type:"ready"} ───────│  al cargar
+     │ ─── {v:1, type:"init", payload:{name, segment, section}} ──▶ │  contexto mínimo, nunca el token
+     │ ◀── {v:1, type:"benefit_selected", payload:{id, title}} ──│  la app muestra un snackbar
+     │ ◀──────── {v:1, type:"close"} ───────│  la app cierra la pantalla
+```
+
+Seguridad: el WebView solo navega dentro del origen de la micro-app; los mensajes se validan (versión, tipo, campos) y lo desconocido se ignora; la micro-app tiene CSP sin recursos externos y no usa `innerHTML`. Resiliencia: spinner de carga, timeout de 10 s sin `ready`, error de red con **Reintentar**, y el switch *Caer micro-app* del panel chaos.
+
+Setup: en GitHub → Settings → Pages → *Source: GitHub Actions*, y `MICROAPP_URL` en `.env`.
+
 ## Calidad
 
 ```bash
