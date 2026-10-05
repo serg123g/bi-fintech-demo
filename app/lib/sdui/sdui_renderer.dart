@@ -13,12 +13,17 @@ class SduiRenderer extends StatelessWidget {
     required this.layout,
     required this.registry,
     this.logger,
+    this.embedded = false,
     super.key,
   });
 
   final SduiLayout layout;
   final SduiRegistry registry;
   final AppLogger? logger;
+
+  /// `true` = se dibuja como columna dentro de otro scroll (p. ej. las
+  /// tarjetas que genera el asistente dentro del chat).
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +51,12 @@ class SduiRenderer extends StatelessWidget {
           'error': e.toString(),
         });
       }
+    }
+    if (embedded) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      );
     }
     return ListView(
       key: const Key('sdui_list'),

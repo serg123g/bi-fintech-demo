@@ -11,6 +11,7 @@ abstract final class SduiIcons {
     'savings': Icons.savings_outlined,
     'trending_up': Icons.trending_up,
     'insights': Icons.insights_outlined,
+    'assistant': Icons.auto_awesome,
     'info': Icons.info_outline,
     'warning': Icons.warning_amber_outlined,
     'credit_card': Icons.credit_card,

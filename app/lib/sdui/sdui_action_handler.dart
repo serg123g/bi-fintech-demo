@@ -21,6 +21,7 @@ class SduiActionHandler {
     AppRoutes.home,
     AppRoutes.accounts,
     AppRoutes.marketplace,
+    AppRoutes.assistant,
   ];
 
   /// Micro-apps que esta versión de la app sabe alojar.
