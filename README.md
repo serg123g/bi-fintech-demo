@@ -181,16 +181,23 @@ Seguridad: el WebView solo navega dentro del origen de la micro-app; los mensaje
 
 Setup: en GitHub → Settings → Pages → *Source: GitHub Actions*, y `MICROAPP_URL` en `.env`.
 
-## Calidad
+## Calidad y pruebas
 
 ```bash
 cd app
-dart format lib test        # formato
-flutter analyze             # lints estrictos (analysis_options.yaml)
-flutter test                # unit + widget
+dart format . && flutter analyze && flutter test          # unit + widget + E2E en VM
+flutter test integration_test -d <emulador-o-dispositivo> # E2E en dispositivo real
+cd ../supabase/functions && deno test --allow-env         # reglas SDUI y push
 ```
 
-El CI (`.github/workflows/ci.yml`) ejecuta formato, análisis y tests en cada push a `main`.
+| Nivel | Qué cubre | Dónde corre |
+|-------|-----------|-------------|
+| Unit | AuthBloc, AccountsBloc, HomeBloc (SwrBloc), ResilientExecutor, circuit breaker, chaos, SWR, parser SDUI, protocolo micro-app, coordinador de push, aislamiento de cache | CI (cada push) |
+| Widget | Login, onboarding, cuentas, detalle, renderer SDUI (desconocidos, fallo parcial), barra de frescura offline, banner offline, panel chaos | CI (cada push) |
+| E2E | `test/e2e/critical_flow.dart`: login → home personalizado → Mis cuentas → detalle → movimientos → detalle de movimiento → logout; home con `home-layout` caído usando el layout empaquetado | VM en CI (cada push) y emulador (`e2e-android.yml`, manual/nocturno) |
+| Backend | Reglas de personalización, mensaje FCM, firma JWT (Deno); RLS (`supabase/tests/rls_check.sql`) | CI (Deno) / SQL Editor |
+
+Los E2E usan el composition root real (`configureDependencies`) y solo reemplazan los repositorios por fakes, para que sean deterministas. La variante contra Supabase real es el recorrido manual con los usuarios del seed.
 
 ## Flujo de contribución — Trunk Based Development
 
