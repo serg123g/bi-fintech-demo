@@ -121,3 +121,15 @@ Deno.test("contrato: version 1, ids únicos y acciones tipadas", () => {
     if (action) assert(["route", "url", "microapp"].includes(action.type));
   }
 });
+
+Deno.test("flag ai_assistant: acceso rápido al asistente sin release", () => {
+  const qa = (f: FeatureFlag[]) =>
+    (buildHomeLayout(base, f, afternoon).sections.find((s) =>
+      s.type === "quick_actions"
+    )!.props.items as Array<{ label: string }>).map((i) => i.label);
+  assertFalse(qa(flags).includes("Asistente"));
+  const on = flags.map((f) =>
+    f.key === "ai_assistant" ? { ...f, enabled: true } : f
+  );
+  assert(qa(on).includes("Asistente"));
+});

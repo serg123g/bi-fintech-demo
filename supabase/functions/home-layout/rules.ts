@@ -143,6 +143,13 @@ export function buildHomeLayout(
       action: { type: "microapp", value: "collections" },
     });
   }
+  if (on("ai_assistant")) {
+    items.push({
+      icon: "assistant",
+      label: "Asistente",
+      action: { type: "route", value: "/assistant" },
+    });
+  }
   items.push({
     icon: "account_balance_wallet",
     label: "Mis cuentas",
