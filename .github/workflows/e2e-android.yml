@@ -1,0 +1,56 @@
+name: E2E Android (emulador)
+
+# El mismo escenario E2E corre en VM en cada push (ci.yml). Este workflow lo
+# ejecuta en un emulador real (UI, plugins y motor gráfico nativos). Es más
+# lento (~10 min), por eso es manual y nocturno en lugar de bloquear main.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Habilitar KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.38.9
+          cache: true
+
+      - name: Config de Firebase desde secrets (ADR-0011)
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          echo "$FIREBASE_OPTIONS_DART" | base64 --decode > lib/firebase_options.dart
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+
+      - run: flutter pub get
+
+      - name: integration_test en emulador
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          working-directory: app
+          script: flutter test integration_test --reporter expanded
