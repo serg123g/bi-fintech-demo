@@ -23,6 +23,8 @@ flowchart LR
 
 **Ambientes:** `dev` (actual), `staging`, `prod` como proyectos separados de Supabase y Firebase. La app los recibe por `--dart-define-from-file` y la config de Firebase se genera desde secrets por ambiente ([ADR-0011](adr/0011-configuracion-firebase-fuera-del-repo.md)). Sabores de Flutter (`dev`, `stg`, `prod`) con application id distinto para instalarlos en paralelo.
 
+**Dependencias y changelog:** Dependabot abre PRs semanales agrupados (pub y GitHub Actions) que pasan por el mismo CI; las notas de cada release y `CHANGELOG.md` se generan desde los conventional commits con git-cliff.
+
 **Versionado:** SemVer en `pubspec.yaml`; `build_number` = número de ejecución del CI. El contrato SDUI y el protocolo de micro-apps tienen su propia `version`; un cambio incompatible sube la versión y el backend responde según la versión que declare la app.
 
 **Rollout gradual y kill switches:** tiendas (staged rollout) para binarios; `feature_flags` (por segmento, ampliable a porcentaje) para funcionalidades; SDUI para quitar o reordenar secciones del home al instante.

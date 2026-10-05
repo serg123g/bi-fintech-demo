@@ -70,6 +70,7 @@ flowchart TB
 | PostgREST | Lecturas directas de cuentas y movimientos; RLS garantiza aislamiento | Supabase |
 | `home-layout` | BFF de personalización: junta señales del cliente + flags y devuelve el layout SDUI v1 | Deno, reglas puras testeadas |
 | `send-push` | Convierte un movimiento nuevo en notificación FCM; limpia tokens inválidos | Deno, OAuth RS256 con WebCrypto |
+| `assistant` | Responde preguntas sobre gastos con un LLM usando solo agregados (`spending_summary`) y devuelve tarjetas SDUI saneadas; fallback por reglas | Deno, Anthropic Messages API con tool use ([ADR-0012](adr/0012-asistente-llm-sobre-agregados.md)) |
 | Micro-app | Marketplace de beneficios desplegable de forma independiente | HTML/JS sin dependencias, CSP |
 
 ## C4 — Nivel 3: Componentes de la app

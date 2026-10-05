@@ -15,3 +15,4 @@ Formato: Problema · Alternativas evaluadas · Opción seleccionada · Trade-off
 | [0009](0009-tbd-y-feature-flags.md) | Trunk Based Development + feature flags por segmento |
 | [0010](0010-recortes-de-alcance.md) | Recortes de alcance conscientes |
 | [0011](0011-configuracion-firebase-fuera-del-repo.md) | Configuración de Firebase fuera del repo, inyectada en CI |
+| [0012](0012-asistente-llm-sobre-agregados.md) | Asistente con LLM sobre agregados, salida estructurada y tarjetas SDUI saneadas |

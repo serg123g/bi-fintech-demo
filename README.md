@@ -191,6 +191,28 @@ Seguridad: el WebView solo navega dentro del origen de la micro-app; los mensaje
 
 Setup: en GitHub → Settings → Pages → *Source: GitHub Actions*, y `MICROAPP_URL` en `.env`.
 
+### Asistente con IA (bonus)
+
+Pantalla `/assistant` (acceso rápido "Asistente" en el home cuando el flag `ai_assistant` está activo). Preguntas como *¿Cuánto gasté en comida?*, *¿En qué gasto más?* o *¿Cómo puedo ahorrar?* se responden con texto y **tarjetas SDUI generadas por el LLM**, dibujadas con el mismo registry del home ([ADR-0012](docs/adr/0012-asistente-llm-sobre-agregados.md)).
+
+- **Privacidad:** el modelo recibe solo agregados de `spending_summary()` (totales por categoría, ingresos, gastos, saldo); nunca descripciones, fechas ni montos individuales.
+- **Seguridad:** salida estructurada con esquema cerrado; el servidor sanea tarjetas, íconos y acciones (lista blanca) antes de enviarlas a la app.
+- **Resiliencia:** sin API key, con timeout o salida inválida responde con reglas determinísticas ("Respuesta automática").
+
+```bash
+supabase db push
+supabase functions deploy assistant
+supabase secrets set LLM_API_KEY=<api key de Anthropic>   # opcional: sin ella usa reglas
+```
+```sql
+update feature_flags set enabled = true where key = 'ai_assistant';
+```
+
+### Automatización
+
+- **Dependabot** (`.github/dependabot.yml`): PRs semanales agrupados para `pub` y GitHub Actions, con prefijos de conventional commits.
+- **Changelog** desde los conventional commits con [git-cliff](https://git-cliff.org) (`cliff.toml`): `CHANGELOG.md` en el repo y notas de cada GitHub Release generadas en `release.yml`.
+
 ## Calidad y pruebas
 
 ```bash
@@ -219,6 +241,7 @@ Los E2E usan el composition root real (`configureDependencies`) y solo reemplaza
 ## Documentación
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): C4 (contexto, contenedores, componentes), secuencias de login, SDUI con fallback y push con deep link, supuestos, riesgos y estrategia de escalamiento.
-- [`docs/adr/`](docs/adr/README.md): 11 decisiones de arquitectura (problema, alternativas, opción, trade-offs, impacto).
+- [`docs/adr/`](docs/adr/README.md): 12 decisiones de arquitectura (problema, alternativas, opción, trade-offs, impacto).
 - [`docs/OPERATIONS.md`](docs/OPERATIONS.md): pipeline y despliegue por pieza, ambientes, rollout gradual, monitoreo (herramientas, correlation IDs, métricas de UX, SLOs y alertas), comportamiento degradado y runbook.
+- [`CHANGELOG.md`](CHANGELOG.md): cambios por versión generados desde los commits.
 - [`docs/AI_USAGE.md`](docs/AI_USAGE.md): uso de IA por fase y resumen de impacto en productividad, calidad, documentación y pruebas.
