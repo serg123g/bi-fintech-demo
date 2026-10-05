@@ -20,7 +20,7 @@ dependencies:
   # Backend (Auth, Postgres, Edge Functions)
   supabase_flutter: ^2.9.0
   # Sesión cifrada (Keychain / EncryptedSharedPreferences)
-  flutter_secure_storage: ^9.2.4
+  flutter_secure_storage: ^11.2.0
   # Cache local cifrada (stale-while-revalidate)
   hive_ce: ^2.11.0
   hive_ce_flutter: ^2.3.0
