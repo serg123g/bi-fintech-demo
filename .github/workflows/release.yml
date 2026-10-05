@@ -1,0 +1,114 @@
+name: Release APK
+
+# Al publicar un tag vX.Y.Z: verifica (analyze + test), compila el APK de
+# release con la configuración del ambiente desde secrets y lo adjunta a un
+# GitHub Release, para instalar la app sin compilar.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  apk:
+    name: Build & publish APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.38.9
+          cache: true
+
+      - name: Config de Firebase desde secrets (ADR-0011)
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$FIREBASE_OPTIONS_DART" ] || [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::error::Faltan los secrets FIREBASE_OPTIONS_DART / GOOGLE_SERVICES_JSON"
+            exit 1
+          fi
+          echo "$FIREBASE_OPTIONS_DART" | base64 --decode > lib/firebase_options.dart
+          echo "$GOOGLE_SERVICES_JSON" | base64 --decode > android/app/google-services.json
+
+      # Mismo formato que .env (--dart-define-from-file). Solo valores
+      # públicos por diseño: URL, publishable key (protegida por RLS) y URL de
+      # la micro-app. Nunca la secret key.
+      - name: Configuración del ambiente desde secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          MICROAPP_URL: ${{ secrets.MICROAPP_URL }}
+        run: |
+          for v in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY MICROAPP_URL; do
+            if [ -z "${!v}" ]; then echo "::error::Falta el secret $v"; exit 1; fi
+          done
+          case "$SUPABASE_PUBLISHABLE_KEY" in
+            sb_secret_*) echo "::error::SUPABASE_PUBLISHABLE_KEY es una secret key"; exit 1;;
+          esac
+          {
+            echo "SUPABASE_URL=$SUPABASE_URL"
+            echo "SUPABASE_PUBLISHABLE_KEY=$SUPABASE_PUBLISHABLE_KEY"
+            echo "MICROAPP_URL=$MICROAPP_URL"
+            # Build de evaluación: panel chaos visible para demostrar resiliencia.
+            echo "ENABLE_CHAOS_PANEL=true"
+          } > "$RUNNER_TEMP/release.env"
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Gate de calidad
+        run: |
+          flutter analyze --fatal-infos
+          flutter test
+
+      - name: Versión desde el tag
+        id: version
+        run: |
+          echo "name=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          echo "apk=bi-fintech-${GITHUB_REF_NAME}.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK de release
+        run: |
+          flutter build apk --release \
+            --dart-define-from-file="$RUNNER_TEMP/release.env" \
+            --build-name=${{ steps.version.outputs.name }} \
+            --build-number=${{ github.run_number }}
+          cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/${{ steps.version.outputs.apk }}"
+          cd "$GITHUB_WORKSPACE" && sha256sum "${{ steps.version.outputs.apk }}" > "${{ steps.version.outputs.apk }}.sha256"
+
+      - name: Publicar GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: BI Fintech ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            ${{ steps.version.outputs.apk }}
+            ${{ steps.version.outputs.apk }}.sha256
+          body: |
+            ## Instalar (Android 8+)
+            1. Descarga `${{ steps.version.outputs.apk }}` en el teléfono o emulador (arrastrar el archivo al emulador lo instala).
+            2. Permite la instalación desde orígenes desconocidos.
+            3. Inicia sesión con `joven@test.com`, `pyme@test.com` o `premium@test.com` (contraseña entregada por separado) para ver los tres homes personalizados.
+
+            Incluye el panel chaos (ícono 🐞 en el home) para demostrar latencia, fallas y servicios caídos.
+            Firmado con la llave de debug (build de evaluación, no apto para tiendas).
+            Verificación: `sha256sum -c ${{ steps.version.outputs.apk }}.sha256`.
