@@ -24,6 +24,8 @@ jobs:
         working-directory: app
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # historial y tags completos para el changelog
 
       - uses: actions/setup-java@v4
         with:
@@ -95,20 +97,36 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/${{ steps.version.outputs.apk }}"
           cd "$GITHUB_WORKSPACE" && sha256sum "${{ steps.version.outputs.apk }}" > "${{ steps.version.outputs.apk }}.sha256"
 
+      - name: Changelog de esta versión (Conventional Commits)
+        id: changelog
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: ${{ runner.temp }}/CHANGES.md
+
+      - name: Notas del release
+        working-directory: .
+        run: |
+          APK="${{ steps.version.outputs.apk }}"
+          {
+            echo "## Instalar (Android 8+)"
+            echo "1. Descarga \`$APK\` en el teléfono o emulador (arrastrar el archivo al emulador lo instala)."
+            echo "2. Permite la instalación desde orígenes desconocidos."
+            echo "3. Inicia sesión con \`joven@test.com\`, \`pyme@test.com\` o \`premium@test.com\` (contraseña entregada por separado)."
+            echo ""
+            echo "Incluye el panel chaos (🐞 en el home). Firmado con la llave de debug: build de evaluación, no apto para tiendas."
+            echo "Verificación: \`sha256sum -c $APK.sha256\`"
+            echo ""
+            cat "$RUNNER_TEMP/CHANGES.md"
+          } > "$RUNNER_TEMP/RELEASE_NOTES.md"
+
       - name: Publicar GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: BI Fintech ${{ github.ref_name }}
-          generate_release_notes: true
+          body_path: ${{ runner.temp }}/RELEASE_NOTES.md
           files: |
             ${{ steps.version.outputs.apk }}
             ${{ steps.version.outputs.apk }}.sha256
-          body: |
-            ## Instalar (Android 8+)
-            1. Descarga `${{ steps.version.outputs.apk }}` en el teléfono o emulador (arrastrar el archivo al emulador lo instala).
-            2. Permite la instalación desde orígenes desconocidos.
-            3. Inicia sesión con `joven@test.com`, `pyme@test.com` o `premium@test.com` (contraseña entregada por separado) para ver los tres homes personalizados.
-
-            Incluye el panel chaos (ícono 🐞 en el home) para demostrar latencia, fallas y servicios caídos.
-            Firmado con la llave de debug (build de evaluación, no apto para tiendas).
-            Verificación: `sha256sum -c ${{ steps.version.outputs.apk }}.sha256`.
