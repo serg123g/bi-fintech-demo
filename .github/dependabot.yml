@@ -1,0 +1,37 @@
+# Actualizaciones automáticas de dependencias. Los PRs usan conventional
+# commits (chore(deps)/ci(deps)) para que aparezcan agrupados en el changelog.
+version: 2
+updates:
+  - package-ecosystem: pub
+    directory: /app
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Guayaquil
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore(deps)
+    labels: [dependencies, flutter]
+    groups:
+      # Parches y minors juntos: un PR por semana, fácil de revisar.
+      flutter-minor-patch:
+        update-types: [minor, patch]
+      firebase:
+        patterns: ['firebase_*']
+      supabase:
+        patterns: ['supabase*', 'gotrue', 'postgrest', 'functions_client']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '08:00'
+      timezone: America/Guayaquil
+    commit-message:
+      prefix: ci(deps)
+    labels: [dependencies, ci]
+    groups:
+      actions:
+        patterns: ['*']
