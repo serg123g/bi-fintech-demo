@@ -60,7 +60,10 @@ Future<void> configureDependencies({
           : sl<DefaultResilientExecutor>(),
     )
     ..registerLazySingleton<SduiActionHandler>(
-      () => SduiActionHandler(logger: sl<AppLogger>()),
+      () => SduiActionHandler(
+        logger: sl<AppLogger>(),
+        microapps: SduiActionHandler.defaultMicroapps,
+      ),
     );
 
   // --- Backend -------------------------------------------------------------

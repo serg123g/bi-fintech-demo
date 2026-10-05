@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/accounts/domain/entities/account.dart';
@@ -13,6 +14,7 @@ import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/debug/presentation/chaos_page.dart';
 import '../../features/home/domain/home_layout_repository.dart';
 import '../../features/home/presentation/home_page.dart';
+import '../../features/marketplace/presentation/microapp_page.dart';
 import '../../sdui/sdui_action_handler.dart';
 import '../cache/cache_store.dart';
 import '../chaos/chaos_config.dart';
@@ -58,6 +60,23 @@ GoRouter buildRouter({
           logger: sl<AppLogger>(),
           showDebugEntry: sl<EnvConfig>().chaosPanelAvailable,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.marketplace,
+        builder: (context, state) {
+          final auth = context.read<AuthBloc>().state;
+          final user = auth is AuthAuthenticated ? auth.user : null;
+          return MicroappPage(
+            url: sl<EnvConfig>().microappUrl,
+            // Solo contexto mínimo: nunca el token de sesión.
+            firstName: user?.firstName ?? '',
+            segment: user?.segment.name ?? 'joven',
+            section: state.uri.queryParameters['section'],
+            logger: sl<AppLogger>(),
+            isDown: () =>
+                sl<ChaosController>().state.isDown(ChaosServices.microapp),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.debug,

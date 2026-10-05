@@ -149,6 +149,7 @@ void main() {
   test('lista blanca de rutas para acciones SDUI', () {
     expect(SduiActionHandler.isAllowedRoute('/accounts'), isTrue);
     expect(SduiActionHandler.isAllowedRoute('/accounts/a1'), isTrue);
+    expect(SduiActionHandler.isAllowedRoute('/marketplace'), isTrue);
     expect(SduiActionHandler.isAllowedRoute('/debug'), isFalse);
     expect(SduiActionHandler.isAllowedRoute('//evil.com'), isFalse);
     expect(SduiActionHandler.isAllowedRoute('https://evil.com'), isFalse);

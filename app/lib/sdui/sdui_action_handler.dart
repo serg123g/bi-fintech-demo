@@ -17,7 +17,17 @@ class SduiActionHandler {
   /// no registrada muestra "Disponible próximamente" en lugar de romper.
   final Map<String, String> microapps;
 
-  static const _allowedRoutePrefixes = [AppRoutes.home, AppRoutes.accounts];
+  static const _allowedRoutePrefixes = [
+    AppRoutes.home,
+    AppRoutes.accounts,
+    AppRoutes.marketplace,
+  ];
+
+  /// Micro-apps que esta versión de la app sabe alojar.
+  static const defaultMicroapps = {
+    'marketplace': AppRoutes.marketplace,
+    'collections': '${AppRoutes.marketplace}?section=cobros',
+  };
 
   static bool isAllowedRoute(String path) =>
       path.startsWith('/') &&
