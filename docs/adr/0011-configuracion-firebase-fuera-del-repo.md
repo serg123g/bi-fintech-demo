@@ -21,6 +21,7 @@ La app necesita `lib/firebase_options.dart` (generado por FlutterFire) y `androi
 
 - **Local:** `flutterfire configure --project=bi-fintech-demo --platforms=android` dentro de `app/`.
 - **CI:** los secrets `FIREBASE_OPTIONS_DART` y `GOOGLE_SERVICES_JSON` (base64) se decodifican antes de `analyze`/`test`.
+- **CI sin secrets** (PRs de Dependabot y forks, que no reciben los secrets de Actions): se genera un stub de `firebase_options.dart` que compila; `analyze`/`test` no usan Firebase.
 - **Runtime:** si Firebase no está configurado para la plataforma, la app arranca sin push (degradación explícita, ver `main.dart`).
 
 ## Trade-offs
