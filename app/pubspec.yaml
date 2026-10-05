@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
   # Estado
   flutter_bloc: ^9.1.0
-  equatable: ^2.0.5
+  equatable: ^3.0.0
   # Navegación
   go_router: ^16.0.0
   # Inyección de dependencias
