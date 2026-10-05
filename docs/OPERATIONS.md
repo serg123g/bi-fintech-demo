@@ -15,7 +15,7 @@ flowchart LR
 
 | Pieza | Cómo se despliega | Rollback |
 |-------|-------------------|----------|
-| App móvil | Tag en `main` → build firmado en CI → canal interno → rollout escalonado en tiendas | Detener rollout; hotfix con nuevo tag; apagar la feature por flag |
+| App móvil | Tag `vX.Y.Z` en `main` → `release.yml` (analyze + test + APK de release + GitHub Release con SHA-256). En producción el mismo job firmaría con la llave de upload y subiría el AAB al canal interno → rollout escalonado en tiendas | Detener rollout; hotfix con nuevo tag; apagar la feature por flag |
 | Esquema (Postgres) | `supabase db push` desde CI con migraciones versionadas e idempotentes | Migración correctiva (forward-only) |
 | Edge Functions | `supabase functions deploy <fn>` desde CI tras `deno test` | Redeploy del commit anterior (son stateless) |
 | Home (SDUI) / flags | Deploy de `home-layout` o `update feature_flags` | Inmediato; la app cae a cache/fallback si algo falla |

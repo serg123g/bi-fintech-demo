@@ -25,6 +25,16 @@ scripts/        # utilidades de desarrollo
 - (Fase 2+) [Supabase CLI](https://supabase.com/docs/guides/cli) y una cuenta de Supabase
 - (Fase 7) Proyecto de Firebase con app Android
 
+## Instalar sin compilar
+
+Cada tag `vX.Y.Z` dispara `.github/workflows/release.yml`: analiza, corre los tests, compila el APK de release y lo publica en **[Releases](https://github.com/serg123g/bi-fintech-demo/releases)** con su checksum SHA-256. Descargar `bi-fintech-vX.Y.Z.apk` e instalarlo en Android 8+ (en el emulador basta con arrastrarlo).
+
+```bash
+git tag v1.0.0 && git push origin v1.0.0   # publicar una versión
+```
+
+Secrets requeridos en GitHub (Settings → Secrets → Actions): `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `MICROAPP_URL`, `FIREBASE_OPTIONS_DART`, `GOOGLE_SERVICES_JSON` (base64).
+
 ## Puesta en marcha
 
 ```bash
