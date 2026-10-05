@@ -86,7 +86,7 @@ jobs:
         run: deno lint
 
       - name: Typecheck
-        run: deno check home-layout/index.ts send-push/index.ts
+        run: deno check home-layout/index.ts send-push/index.ts assistant/index.ts
 
       - name: Tests (personalización y push)
         run: deno test --allow-env
