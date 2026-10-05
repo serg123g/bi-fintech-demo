@@ -7,6 +7,8 @@ import '../../features/accounts/domain/repositories/accounts_repository.dart';
 import '../../features/accounts/presentation/pages/account_detail_page.dart';
 import '../../features/accounts/presentation/pages/accounts_page.dart';
 import '../../features/accounts/presentation/pages/movement_detail_page.dart';
+import '../../features/assistant/domain/assistant_repository.dart';
+import '../../features/assistant/presentation/assistant_page.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/onboarding_page.dart';
@@ -16,6 +18,7 @@ import '../../features/home/domain/home_layout_repository.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/marketplace/presentation/microapp_page.dart';
 import '../../sdui/sdui_action_handler.dart';
+import '../../sdui/sdui_scope.dart';
 import '../cache/cache_store.dart';
 import '../chaos/chaos_config.dart';
 import '../config/env.dart';
@@ -75,6 +78,20 @@ GoRouter buildRouter({
             logger: sl<AppLogger>(),
             isDown: () =>
                 sl<ChaosController>().state.isDown(ChaosServices.microapp),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.assistant,
+        builder: (context, state) {
+          final auth = context.read<AuthBloc>().state;
+          return AssistantPage(
+            repository: sl<AssistantRepository>(),
+            environment: SduiEnvironment(
+              firstName: auth is AuthAuthenticated ? auth.user.firstName : '',
+              accounts: sl<AccountsRepository>(),
+              actions: sl<SduiActionHandler>(),
+            ),
           );
         },
       ),

@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 import '../../features/accounts/data/accounts_remote_data_source.dart';
 import '../../features/accounts/data/accounts_repository_impl.dart';
 import '../../features/accounts/domain/repositories/accounts_repository.dart';
+import '../../features/assistant/data/supabase_assistant_repository.dart';
+import '../../features/assistant/domain/assistant_repository.dart';
 import '../../features/auth/data/supabase_auth_repository.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
@@ -103,6 +105,9 @@ Future<void> configureDependencies({
           loadFallback: () =>
               rootBundle.loadString('assets/sdui/home_fallback.json'),
         ),
+      )
+      ..registerLazySingleton<AssistantRepository>(
+        () => SupabaseAssistantRepository(client, sl<ResilientExecutor>()),
       )
       ..registerLazySingleton<DeviceTokenRepository>(
         () => SupabaseDeviceTokenRepository(client, sl<ResilientExecutor>()),

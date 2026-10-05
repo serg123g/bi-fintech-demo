@@ -8,6 +8,7 @@ abstract final class AppRoutes {
   static const accounts = '/accounts';
   static const marketplace = '/marketplace';
   static const debug = '/debug';
+  static const assistant = '/assistant';
 
   static String account(String id) => '$accounts/$id';
 
